@@ -68,11 +68,11 @@ incRates<-function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
 
     for(j in 1:length(age))
     { #uncertainty interval
-      rSampleInc <- rgamma(1000, shape =careEp[j,i], rate = pop[j,"n"])
-      Epi_incidents[j, paste(i, "Lower")] <- propAttr[j, i]*quantile(rSampleInc, 0.025)*rate
-      Epi_incidents[j, paste(i, "Upper")] <- propAttr[j, i]*quantile(rSampleInc, 0.975)*rate
+      rSampleInc <- stats::rgamma(1000, shape =careEp[j,i], rate = pop[j,"n"])
+      Epi_incidents[j, paste(i, "Lower")] <- propAttr[j, i]*stats::quantile(rSampleInc, 0.025)*rate
+      Epi_incidents[j, paste(i, "Upper")] <- propAttr[j, i]*stats::quantile(rSampleInc, 0.975)*rate
     }
-    rSampleInc <- rgamma(1000, shape =sum(careEp[,i]), rate = sum(pop[,"n"]))
+    rSampleInc <- stats::rgamma(1000, shape =sum(careEp[,i]), rate = sum(pop[,"n"]))
   }
 
   return(Epi_incidents)
@@ -84,7 +84,6 @@ incRates<-function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
 #' @param rate used for incR eg. per 100 persons, per 100k
 #' @param pop population-at-age, same age groups as incR
 #' @param life life-expectancy-at-age, same age groups as incR
-#' @param propAttr prop of episodes-at-age that are attributable to GAS for each disease
 #' @param dw_A acute disability weights with uncertainty
 #' @param dw_C chronic disability weights with uncertainty
 #' @param prog probability of progression from acute to chronic
@@ -133,7 +132,7 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
     for(j in rownames((dw_C)))
     {
       for(i in 1:length(age))
-        duration[i,j]<--pv(dRate,duration[i, j],0,1,1)
+        duration[i,j]<--FinCal::pv(dRate,duration[i, j],0,1,1)
     }
   }
 
@@ -161,19 +160,19 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
       dalyT[j, paste(i, "Lower")]<-0
       dalyT[j, paste(i, "Upper")]<-0
 
-      rSampleInc <- rgamma(1000, shape =incR[j,i]*pop[j, "n"], rate = pop[j, "n"])
+      rSampleInc <- stats::rgamma(1000, shape =incR[j,i]*pop[j, "n"], rate = pop[j, "n"])
 
       if(i %in% rownames(dw_A)){
-        rSampleDW_A  <- rtriangle(1000, dw_A[i,"min"], dw_A[i,"max"], dw_A[i,"w"])
-        Lower_A <- quantile(rSampleInc*rSampleDW_A, 0.025)*pop[j, "n"]
-        Upper_A <- quantile(rSampleInc*rSampleDW_A, 0.975)*pop[j, "n"]
+        rSampleDW_A  <- triangle::rtriangle(1000, dw_A[i,"min"], dw_A[i,"max"], dw_A[i,"w"])
+        Lower_A <- stats::quantile(rSampleInc*rSampleDW_A, 0.025)*pop[j, "n"]
+        Upper_A <- stats::quantile(rSampleInc*rSampleDW_A, 0.975)*pop[j, "n"]
         dalyT[j, paste(i, "Lower")]<-dalyT[j, paste(i, "Lower")]+as.numeric(Lower_A)
         dalyT[j, paste(i, "Upper")]<-dalyT[j, paste(i, "Upper")]+as.numeric(Upper_A)
       }
       if(i %in% rownames(dw_C)){
-        rSampleDW_C  <- rtriangle(1000, dw_C[i,"min"], dw_C[i,"max"], dw_C[i,"w"])
-        Lower_C <- prog[i]*quantile(rSampleInc*rSampleDW_C, 0.025)*pop[j, "n"]*duration[j, i]
-        Upper_C <- prog[i]*quantile(rSampleInc*rSampleDW_C, 0.975)*pop[j, "n"]*duration[j, i]
+        rSampleDW_C  <- triangle::rtriangle(1000, dw_C[i,"min"], dw_C[i,"max"], dw_C[i,"w"])
+        Lower_C <- prog[i]*stats::quantile(rSampleInc*rSampleDW_C, 0.025)*pop[j, "n"]*duration[j, i]
+        Upper_C <- prog[i]*stats::quantile(rSampleInc*rSampleDW_C, 0.975)*pop[j, "n"]*duration[j, i]
         dalyT[j, paste(i, "Lower")]<-dalyT[j, paste(i, "Lower")]+as.numeric(Lower_C)
         dalyT[j, paste(i, "Upper")]<-dalyT[j, paste(i, "Upper")]+as.numeric(Upper_C)
       }
@@ -306,7 +305,7 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 
   #At the moment, maximum of 12 states in total
 
-  model_param <- define_parameters(
+  model_param <- heemod::define_parameters(
     age = ageInit + markov_cycle,
     prWell = probM[age, 1],
     prDis1 = probM[age, 2],
@@ -322,7 +321,7 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
     prDec = probM[age, 12]
   )
 
-  model_trans <- define_transition(
+  model_trans <- heemod::define_transition(
     state_names = StateN,
     prWell, prDis1, prDis2, prDis3, prDis4, prDis5, prDis6, prDis7, prDis8, prDis9, prDis10, prDec,
     prWell, prDis1, prDis2, prDis3, prDis4, prDis5, prDis6, prDis7, prDis8, prDis9, prDis10, prDec,
@@ -338,7 +337,7 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
     0,0,0,0,0,0,0,0,0,0,0,1
   )
 
-  model_strat<-define_strategy(
+  model_strat<-heemod::define_strategy(
     transition = model_trans,
     Well = define_state(utility=0,cost=0),
     Disease1 = define_state(utility=discount(dalysM[age,1], dR), cost=discount(costM[age,1], dR)),
@@ -354,7 +353,7 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
     Deceased = define_state(utility=0, cost=0)
   )
 
-  model <- run_model(
+  model <- heemod::run_model(
     standard = model_strat,
     init=c(Initpop,0,0,0,0,0,0,0,0,0,0,0),
     parameters = model_param,

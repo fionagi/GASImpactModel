@@ -40,8 +40,6 @@ dalys(
 \item{deaths}{death rates}
 
 \item{deathRate}{rate used for deaths}
-
-\item{propAttr}{prop of episodes-at-age that are attributable to GAS for each disease}
 }
 \value{
 matrix
