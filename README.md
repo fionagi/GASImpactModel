@@ -1,1 +1,2 @@
 # GASImpactModel
+This is the starting point for the development of the SAVAC impact model app. This version is for testing various shiny app features as well as checking that core model functions are working. Currently the "Cost" tab is empty. This version completely relies on uploaded data and does all calculating "on the fly". Examples of input data are included in the related-named folder. All R code is currently in the one file due to issues running the code on rshinyapps.io when sourcing other R files  (https://fionatkiapps.shinyapps.io/GASImpactModel/)
