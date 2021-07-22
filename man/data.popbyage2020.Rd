@@ -3,7 +3,7 @@
 \docType{data}
 \name{data.popbyage2020}
 \alias{data.popbyage2020}
-\title{2020 Population by age group}
+\title{Population by age group}
 \format{
 A data table containing 251 observations of 22 variables.
 \describe{
@@ -18,7 +18,7 @@ A data table containing 251 observations of 22 variables.
 data.popbyage2020
 }
 \description{
-Total population (both sexes combined) by 5-year age group (in thousands).
+Total population (both sexes combined) for 2020 by 5-year age group (in thousands).
 Data set extracted from "Annual Population by Age Groups - Both Sexes" obtained
 from source.
 }
