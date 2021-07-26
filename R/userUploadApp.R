@@ -5,19 +5,14 @@
 # # Find out more about building applications with Shiny here:
 # #
 # #    http://shiny.rstudio.com/
-# #    Country
-# #    Year of vaccine introduction
-# #    Age of vaccination
-# #    Vaccine coverage
-# #    Vaccine efficacy
-#
+# #
 #
 # library(shiny)
-# #library(stringr)
+# library(stringr)
 # library(ggplot2)
 # library(reshape2)
-# #library(ggpubr)
-# #library(rCAT)
+# library(ggpubr)
+# library(rCAT)
 # library(GASImpactModel)
 #
 #
