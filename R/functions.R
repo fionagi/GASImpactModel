@@ -339,18 +339,18 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 
   model_strat<-heemod::define_strategy(
     transition = model_trans,
-    Well = define_state(utility=0,cost=0),
-    Disease1 = define_state(utility=discount(dalysM[age,1], dR), cost=discount(costM[age,1], dR)),
-    Disease2 = define_state(utility=discount(dalysM[age,2], dR), cost=discount(costM[age,2], dR)),
-    Disease3 = define_state(utility=discount(dalysM[age,3], dR), cost=discount(costM[age,3], dR)),
-    Disease4 = define_state(utility=discount(dalysM[age,4], dR), cost=discount(costM[age,4], dR)),
-    Disease5 = define_state(utility=discount(dalysM[age,5], dR), cost=discount(costM[age,5], dR)),
-    Disease6 = define_state(utility=discount(dalysM[age,6], dR), cost=discount(costM[age,6], dR)),
-    Disease7 = define_state(utility=discount(dalysM[age,7], dR), cost=discount(costM[age,7], dR)),
-    Disease8 = define_state(utility=discount(dalysM[age,8], dR), cost=discount(costM[age,8], dR)),
-    Disease9 = define_state(utility=discount(dalysM[age,9], dR), cost=discount(costM[age,9], dR)),
-    Disease10 = define_state(utility=discount(dalysM[age,10], dR), cost=discount(costM[age,10], dR)),
-    Deceased = define_state(utility=0, cost=0)
+    Well = heemod::define_state(utility=0,cost=0),
+    Disease1 = heemod::define_state(utility=heemod::discount(dalysM[age,1], dR), cost=heemod::discount(costM[age,1], dR)),
+    Disease2 = heemod::define_state(utility=heemod::discount(dalysM[age,2], dR), cost=heemod::discount(costM[age,2], dR)),
+    Disease3 = heemod::define_state(utility=heemod::discount(dalysM[age,3], dR), cost=heemod::discount(costM[age,3], dR)),
+    Disease4 = heemod::define_state(utility=heemod::discount(dalysM[age,4], dR), cost=heemod::discount(costM[age,4], dR)),
+    Disease5 = heemod::define_state(utility=heemod::discount(dalysM[age,5], dR), cost=heemod::discount(costM[age,5], dR)),
+    Disease6 = heemod::define_state(utility=heemod::discount(dalysM[age,6], dR), cost=heemod::discount(costM[age,6], dR)),
+    Disease7 = heemod::define_state(utility=heemod::discount(dalysM[age,7], dR), cost=heemod::discount(costM[age,7], dR)),
+    Disease8 = heemod::define_state(utility=heemod::discount(dalysM[age,8], dR), cost=heemod::discount(costM[age,8], dR)),
+    Disease9 = heemod::define_state(utility=heemod::discount(dalysM[age,9], dR), cost=heemod::discount(costM[age,9], dR)),
+    Disease10 = heemod::define_state(utility=heemod::discount(dalysM[age,10], dR), cost=heemod::discount(costM[age,10], dR)),
+    Deceased = heemod::define_state(utility=0, cost=0)
   )
 
   model <- heemod::run_model(

@@ -13,7 +13,7 @@
 # library(reshape2)
 # library(ggpubr)
 # library(rCAT)
-# #library(GASImpactModel)
+# library(GASImpactModel)
 #
 #
 # ##################################################################################################
@@ -173,7 +173,7 @@
 #     prop <-read.csv(propFile$datapath, check.names=FALSE)
 #     group <-read.csv(groupFile$datapath, check.names=FALSE)
 #
-#     incRatesT<-incRates(careEp = ep, pop = pop, propAttr = prop, perPopSize = rate, years = yrs, grps=group)
+#     incRatesT<-incRates(careEp = ep, pop = pop, propAttr = prop, rate = rate, years = yrs, grps=group)
 #
 #     if(is.data.frame(group))
 #     {
