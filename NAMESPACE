@@ -3,6 +3,8 @@
 export(dalys)
 export(findICER)
 export(findVacValue)
+export(getPopData)
+export(getRateData)
 export(heemodModel)
 export(incRates)
 export(markovModel)

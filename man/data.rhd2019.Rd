@@ -3,10 +3,11 @@
 \docType{data}
 \name{data.rhd2019}
 \alias{data.rhd2019}
-\title{Incident rates for rheumatic heart disease (RHD)}
+\title{Incidence and death rates for rheumatic heart disease (RHD)}
 \format{
 A data table containing 8295 observations of 5 variables.
 \describe{
+\item{measure}{Either Incidence or Deaths}
 \item{location}{Region, subregion, country or area}
 \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 plus}
 \item{val}{incident rate per 100,000 persons}
@@ -21,7 +22,7 @@ A data table containing 8295 observations of 5 variables.
 data.rhd2019
 }
 \description{
-Incident rates (per 100,000 persons) for 2019 by country/region and age group.
+Incidence and death rates (per 100,000 persons) for 2019 by country/region and age group.
 Data set extracted from the Global Health Data Exchange (GHDx), created and
 supported by the Institute for Health Metrics and Evaluation (IHME)
 }

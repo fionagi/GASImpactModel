@@ -14,14 +14,15 @@
 #' @source \url{https://population.un.org/wpp/Download/Standard/Population/}
 "data.popbyage2020"
 
-#' Incident rates for rheumatic heart disease (RHD)
+#' Incidence and death rates for rheumatic heart disease (RHD)
 #'
-#' Incident rates (per 100,000 persons) for 2019 by country/region and age group.
+#' Incidence and death rates (per 100,000 persons) for 2019 by country/region and age group.
 #' Data set extracted from the Global Health Data Exchange (GHDx), created and
 #'  supported by the Institute for Health Metrics and Evaluation (IHME)
 #'
 #' @format A data table containing 8295 observations of 5 variables.
 #' \describe{
+#'   \item{measure}{Either Incidence or Deaths}
 #'   \item{location}{Region, subregion, country or area}
 #'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 plus}
 #'   \item{val}{incident rate per 100,000 persons}
@@ -31,14 +32,15 @@
 #' @source \url{http://ghdx.healthdata.org/gbd-results-tool}
 "data.rhd2019"
 
-#' Incident rates for cellulitis
+#' Incidence and death rates for cellulitis
 #'
-#' Incident rates (per 100,000 persons) for 2019 by country/region and age group.
+#' Incidence and death rates (per 100,000 persons) for 2019 by country/region and age group.
 #' Data set extracted from the Global Health Data Exchange (GHDx), created and
 #'  supported by the Institute for Health Metrics and Evaluation (IHME)
 #'
 #' @format A data table containing 8532 observations of 5 variables.
 #' \describe{
+#'   \item{measure}{Either Incidence or Deaths}
 #'   \item{location}{Region, subregion, country or area}
 #'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 plus}
 #'   \item{val}{incident rate per 100,000 persons}

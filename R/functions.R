@@ -1,3 +1,35 @@
+#' Retrieve location and condition specific incidence and deaths data
+#'
+#' @param location country that matches UN data
+#' @param condition either RHD or cellulitis
+#'
+#' @return list(data.frame, data.frame)
+#' @export
+getRateData <- function(location, condition)
+{
+  label <- lookup_condition[lookup_condition$Condition==condition ,]$Label
+  condData <- paste("data.", label, "2019", sep='')
+
+  data <- get(condData)
+  inc <- data[data$location==location & data$measure=="Incidence",]
+  deaths <- data[data$location==location & data$measure=="Deaths",]
+
+  return(list(inc, deaths))
+}
+
+#' Retrieve location population data
+#'
+#' @param location country that matches UN data
+#'
+#' @return data.frame
+#' @export
+getPopData <- function(location)
+{
+  pop <- data.popbyage2020[data.popbyage2020$Country==location, ]
+
+  return(pop)
+}
+
 #' Find incident rates with 95% uncertainty intervals
 #'
 #' @param careEp  raw care episodes-at-age
@@ -9,62 +41,62 @@
 #'
 #' @return matrix
 #' @export
-incRates<-function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
+incRates <- function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
 {
-  age<-careEp[,1]
-  careEp<-careEp[,-1]
-  careEp<-careEp/years #find yearly average
-  rownames(careEp)<-age
-  colnames(pop)<-c("Age", "n")
+  age <- careEp[,1]
+  careEp <- careEp[,-1]
+  careEp <- careEp/years #find yearly average
+  rownames(careEp) <- age
+  colnames(pop) <- c("Age", "n")
 
   if(is.data.frame(grps))
   { #if grps is a data frame with disease groups, aggregate careEp data
 
-    newCareEp<-matrix(NA, nrow=length(age), ncol=ncol(grps))
-    rownames(newCareEp)<-age
-    colnames(newCareEp)<-colnames(grps)
+    newCareEp <- matrix(NA, nrow=length(age), ncol=ncol(grps))
+    rownames(newCareEp) <- age
+    colnames(newCareEp) <- colnames(grps)
 
     for(i in 1:ncol(grps))
     {
-      diseases<-grps[which(grps[,i]!=""),i] #diseases in group
+      diseases <- grps[which(grps[,i]!=""),i] #diseases in group
 
 
-      epXprop<-propAttr[,diseases]*careEp[,diseases] #mult. each ep. with relevant prop.
+      epXprop <- propAttr[,diseases]*careEp[,diseases] #mult. each ep. with relevant prop.
 
       if(length(diseases)>1)
       {
-        newCareEp[,colnames(grps)[i]]<-apply(epXprop, 1, sum)
+        newCareEp[,colnames(grps)[i]] <- apply(epXprop, 1, sum)
       }else{
-        newCareEp[,colnames(grps)[i]]<-epXprop
+        newCareEp[,colnames(grps)[i]] <- epXprop
       }
 
     }
-    newPropAttr<-matrix(1, nrow=length(age), ncol=ncol(grps))
-    colnames(newPropAttr)<-colnames(grps)
-    propAttr<-newPropAttr
-    careEp<-newCareEp
+    newPropAttr <- matrix(1, nrow=length(age), ncol=ncol(grps))
+    colnames(newPropAttr) <- colnames(grps)
+    propAttr <- newPropAttr
+    careEp <- newCareEp
   }
 
-  Epi_categories<-colnames(careEp)
+  Epi_categories <- colnames(careEp)
 
-  Epi_headings<-c(Epi_categories[1], paste(Epi_categories[1], "Lower"), paste(Epi_categories[1], "Upper"))
+  Epi_headings <- c(Epi_categories[1], paste(Epi_categories[1], "Lower"), paste(Epi_categories[1], "Upper"))
   if(length(Epi_categories)>1)
   {
     for(i in 2:length(Epi_categories))
-      Epi_headings<-c(Epi_headings, Epi_categories[i], paste(Epi_categories[i], "Lower"), paste(Epi_categories[i], "Upper"))
+      Epi_headings <- c(Epi_headings, Epi_categories[i], paste(Epi_categories[i], "Lower"), paste(Epi_categories[i], "Upper"))
   }
 
-  Epi_incidents<-matrix(NA, nrow=length(age), ncol=length(Epi_headings))
-  Epi_incidents_Total<-matrix(NA, nrow=1, ncol=length(Epi_headings))
-  rownames(Epi_incidents)<-age
-  colnames(Epi_incidents)<-Epi_headings
-  colnames(Epi_incidents_Total)<-Epi_headings
+  Epi_incidents <- matrix(NA, nrow=length(age), ncol=length(Epi_headings))
+  Epi_incidents_Total <- matrix(NA, nrow=1, ncol=length(Epi_headings))
+  rownames(Epi_incidents) <- age
+  colnames(Epi_incidents) <- Epi_headings
+  colnames(Epi_incidents_Total) <- Epi_headings
 
   #incident rate=propAttrGASx(NoIncidentsPerYear/SizeOfIncidentPop)x perNoPeople (no. of episodes per 100 people)
   for(i in Epi_categories)
   {
-    Epi_incidents[,i]<-propAttr[,i]*(careEp[,i]/pop[,"n"])*rate
-    Epi_incidents_Total[,i]<-sum(Epi_incidents[,i])
+    Epi_incidents[,i] <- propAttr[,i]*(careEp[,i]/pop[,"n"])*rate
+    Epi_incidents_Total[,i] <- sum(Epi_incidents[,i])
 
     for(j in 1:length(age))
     { #uncertainty interval
@@ -96,33 +128,33 @@ incRates<-function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
 #' @export
 dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths, deathRate)
 {
-  age<-incR[,1]
-  incR<-incR[,-1]/rate
-  rownames(incR)<-age
-  colnames(pop)<-c("Age", "n")
-  deaths<-deaths[,-1]/deathRate
-  dRate<-dRate/100
-  rownames(dw_A)<-dw_A[,1]
-  dw_A<-dw_A[,-1]
-  colnames(dw_A)<-c("w", "min", "max")
-  rownames(dw_C)<-dw_C[,1]
-  dw_C<-dw_C[,-1]
-  colnames(dw_C)<-c("w", "min", "max")
+  age <- incR[,1]
+  incR <- incR[,-1]/rate
+  rownames(incR) <- age
+  colnames(pop) <- c("Age", "n")
+  deaths <- deaths[,-1]/deathRate
+  dRate <- dRate/100
+  rownames(dw_A) <- dw_A[,1]
+  dw_A <- dw_A[,-1]
+  colnames(dw_A) <- c("w", "min", "max")
+  rownames(dw_C) <- dw_C[,1]
+  dw_C <- dw_C[,-1]
+  colnames(dw_C) <- c("w", "min", "max")
 
-  daly_categories<-colnames(incR)
+  daly_categories <- colnames(incR)
 
-  daly_headings<-c(daly_categories[1], paste(daly_categories[1], "Lower"), paste(daly_categories[1], "Upper"))
+  daly_headings <- c(daly_categories[1], paste(daly_categories[1], "Lower"), paste(daly_categories[1], "Upper"))
   if(length(daly_categories)>1)
   {
     for(i in 2:length(daly_categories))
-      daly_headings<-c(daly_headings, daly_categories[i], paste(daly_categories[i], "Lower"), paste(daly_categories[i], "Upper"))
+      daly_headings <- c(daly_headings, daly_categories[i], paste(daly_categories[i], "Lower"), paste(daly_categories[i], "Upper"))
   }
 
-  dalyT<-matrix(NA, nrow=length(age), ncol=length(daly_headings))
-  daly_Total<-matrix(NA, nrow=1, ncol=length(daly_headings))
-  rownames(dalyT)<-age
-  colnames(dalyT)<-daly_headings
-  colnames(daly_Total)<-daly_headings
+  dalyT <- matrix(NA, nrow=length(age), ncol=length(daly_headings))
+  daly_Total <- matrix(NA, nrow=1, ncol=length(daly_headings))
+  rownames(dalyT) <- age
+  colnames(dalyT) <- daly_headings
+  colnames(daly_Total) <- daly_headings
 
   #if discounting, change duration values to present value
   #duration should be disease dependent, for those conditions
@@ -132,7 +164,7 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
     for(j in rownames((dw_C)))
     {
       for(i in 1:length(age))
-        duration[i,j]<--FinCal::pv(dRate,duration[i, j],0,1,1)
+        duration[i,j] <- -FinCal::pv(dRate,duration[i, j],0,1,1)
     }
   }
 
@@ -142,13 +174,13 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
     #YLD_acute = no.episodes x disability weight
     #YLD_chronic = prop. that progress to chronic x no. episodes (rate/person x no. people)
     #             x disability weight x duration (either with or without discounting)
-    YLD_acute<-0
-    YLD_chronic<-0
+    YLD_acute <- 0
+    YLD_chronic <- 0
 
     if(i %in% rownames(dw_A))
-      YLD_acute<-incR[,i]*pop[,"n"]*dw_A[i,"w"]
+      YLD_acute <- incR[,i]*pop[,"n"]*dw_A[i,"w"]
     if(i %in% rownames(dw_C))
-      YLD_chronic<-prog[,i]*incR[,i]*pop[,"n"]*dw_C[i,"w"]*duration[, i]
+      YLD_chronic <- prog[,i]*incR[,i]*pop[,"n"]*dw_C[i,"w"]*duration[, i]
 
     YLD <- YLD_acute+YLD_chronic
 
@@ -157,8 +189,8 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
     {
       #Note: gamma distribution parameters are an approximation if the incident
       #rates were based on a care population smaller than country population
-      dalyT[j, paste(i, "Lower")]<-0
-      dalyT[j, paste(i, "Upper")]<-0
+      dalyT[j, paste(i, "Lower")] <- 0
+      dalyT[j, paste(i, "Upper")] <- 0
 
       rSampleInc <- stats::rgamma(1000, shape =incR[j,i]*pop[j, "n"], rate = pop[j, "n"])
 
@@ -166,23 +198,23 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
         rSampleDW_A  <- triangle::rtriangle(1000, dw_A[i,"min"], dw_A[i,"max"], dw_A[i,"w"])
         Lower_A <- stats::quantile(rSampleInc*rSampleDW_A, 0.025)*pop[j, "n"]
         Upper_A <- stats::quantile(rSampleInc*rSampleDW_A, 0.975)*pop[j, "n"]
-        dalyT[j, paste(i, "Lower")]<-dalyT[j, paste(i, "Lower")]+as.numeric(Lower_A)
-        dalyT[j, paste(i, "Upper")]<-dalyT[j, paste(i, "Upper")]+as.numeric(Upper_A)
+        dalyT[j, paste(i, "Lower")] <- dalyT[j, paste(i, "Lower")]+as.numeric(Lower_A)
+        dalyT[j, paste(i, "Upper")] <- dalyT[j, paste(i, "Upper")]+as.numeric(Upper_A)
       }
       if(i %in% rownames(dw_C)){
         rSampleDW_C  <- triangle::rtriangle(1000, dw_C[i,"min"], dw_C[i,"max"], dw_C[i,"w"])
         Lower_C <- prog[i]*stats::quantile(rSampleInc*rSampleDW_C, 0.025)*pop[j, "n"]*duration[j, i]
         Upper_C <- prog[i]*stats::quantile(rSampleInc*rSampleDW_C, 0.975)*pop[j, "n"]*duration[j, i]
-        dalyT[j, paste(i, "Lower")]<-dalyT[j, paste(i, "Lower")]+as.numeric(Lower_C)
-        dalyT[j, paste(i, "Upper")]<-dalyT[j, paste(i, "Upper")]+as.numeric(Upper_C)
+        dalyT[j, paste(i, "Lower")] <- dalyT[j, paste(i, "Lower")]+as.numeric(Lower_C)
+        dalyT[j, paste(i, "Upper")] <- dalyT[j, paste(i, "Upper")]+as.numeric(Upper_C)
       }
     }
 
-    YLL<-deaths[,i]*life[,"le"]
+    YLL <- deaths[,i]*life[,"le"]
 
-    dalyT[,i]<-YLD+YLL
-    dalyT[, paste(i, "Lower")]<-dalyT[, paste(i, "Lower")]+YLL
-    dalyT[, paste(i, "Upper")]<-dalyT[, paste(i, "Upper")]+YLL
+    dalyT[,i] <- YLD+YLL
+    dalyT[, paste(i, "Lower")] <- dalyT[, paste(i, "Lower")]+YLL
+    dalyT[, paste(i, "Upper")] <- dalyT[, paste(i, "Upper")]+YLL
 
   }
 
@@ -197,10 +229,11 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
 #' @export
 probUncondition <- function(Pr)
 {
-  pos_m<-length(Pr)
-  m<-Pr[pos_m]
-  incProb<-Pr[1:(pos_m-1)]
-  newProb<-c(incProb*(1-m), m)
+  pos_m <- length(Pr)
+  m <- Pr[pos_m]
+  incProb <- Pr[1:(pos_m-1)]
+  newProb <- c(incProb*(1-m), m)
+
   return(newProb)
 }
 
@@ -217,22 +250,22 @@ probUncondition <- function(Pr)
 #' @export
 transProb <- function(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur)
 {
-  trProb<-prM
+  trProb <- prM
 
   if(V_Eff != 0) #if vaccinating
   {
-    vTime<-(1+V_Age):(V_Age+V_Dur) #from time of vacc to end of duration of effectiveness
-    trProb[vTime,]<-(1-V_Eff)*trProb[vTime,] #reduce prob. of incidents due to vaccine
+    vTime <- (1+V_Age):(V_Age+V_Dur) #from time of vacc to end of duration of effectiveness
+    trProb[vTime,] <- (1-V_Eff)*trProb[vTime,] #reduce prob. of incidents due to vaccine
   }
 
-  trProb<-cbind(trProb, lifeTable[1:(maxAge+1)])
-  colnames(trProb)[ncol(trProb)]<-"Deceased"
+  trProb <- cbind(trProb, lifeTable[1:(maxAge+1)])
+  colnames(trProb)[ncol(trProb)] <- "Deceased"
 
-  trProb<-t(apply(trProb, 1, probUncondition))
+  trProb <- t(apply(trProb, 1, probUncondition))
 
-  PrWell<-apply(trProb, 1, function(x) 1-sum(x))
-  trProb<-cbind(as.matrix(PrWell), trProb)
-  colnames(trProb)[1]<-"Well"
+  PrWell <- apply(trProb, 1, function(x) 1-sum(x))
+  trProb <- cbind(as.matrix(PrWell), trProb)
+  colnames(trProb)[1] <- "Well"
 
   return(trProb)
 }
@@ -288,8 +321,8 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 {
 
   numStates <- ncol(probM) #Always Well and Deceased State, plus diseased states
-  maxDStates<-10 #max. diseased states
-  noDummyStates<-maxDStates-numStates+2 #2 non-diseased states : Well, Deceased
+  maxDStates <-10 #max. diseased states
+  noDummyStates <- maxDStates-numStates+2 #2 non-diseased states : Well, Deceased
 
   StateN <- "Well"
   for(i in 1:maxDStates) StateN <- c(StateN, paste("Disease", i, sep=''))
