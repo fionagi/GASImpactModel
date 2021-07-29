@@ -30,6 +30,22 @@ getPopData <- function(location)
   return(pop)
 }
 
+#' Retrieve probability of all-cause mortality
+#'
+#' @param location country that matches UN data
+#'
+#' @return data.frame
+#' @export
+getMorData <- function(location)
+{
+  data <- stringr::str_replace(paste("data.life.", tolower(location), "2019", sep=''), " ", "." )
+  mor <- get(data)
+  mor <- mor[-nrow(mor),] #remove 85+ row to be compatible with incidence data
+
+  return(mor)
+}
+
+
 #' Find incident rates with 95% uncertainty intervals
 #'
 #' @param careEp  raw care episodes-at-age
@@ -258,7 +274,7 @@ transProb <- function(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur)
     trProb[vTime,] <- (1-V_Eff)*trProb[vTime,] #reduce prob. of incidents due to vaccine
   }
 
-  trProb <- cbind(trProb, lifeTable[1:(maxAge+1)])
+  trProb <- cbind(trProb, as.numeric(lifeTable[1:(maxAge+1)]))
   colnames(trProb)[ncol(trProb)] <- "Deceased"
 
   trProb <- t(apply(trProb, 1, probUncondition))
@@ -319,7 +335,6 @@ findICER <- function(c0, cV, e0, eV, popS, VV)
 #' @export
 heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 {
-
   numStates <- ncol(probM) #Always Well and Deceased State, plus diseased states
   maxDStates <-10 #max. diseased states
   noDummyStates <- maxDStates-numStates+2 #2 non-diseased states : Well, Deceased
@@ -548,3 +563,226 @@ markovModel<- function(age, inc, rate, costs, dalys, dalyRate, mortality, initPo
   return(impactT)
 
 }
+
+#' Run Markov models for vaccine impact scenario
+#' @description Run Markov models for vaccine impact scenario and produce table
+#' of comparison metrics. This function calls transProb and heemodModel
+#'
+#' @param conditions condition names
+#' @param inc incident rates for each condition
+#' @param rate rate used for inc. Default 100,000
+#' @param costs costs per person for each condition and age group.
+#'              nAgeGroups x (nConditions + 1) matrix, col1 = ageGroup,
+#'              If set to 1, all age groups and conditions set to cost 1/person
+#' @param dalys DALYs for each condition and age group.
+#'              nAgeGroups x (nConditions + 1) matrix, col1 = ageGroup,
+#'              If set to 1, all age groups and conditions set to DALYs 1
+#' @param dalyRate rate used for DALYs. Default 100,000
+#' @param mortality all-cause mortality rate at age
+#' @param initPop initial population size. Default 100,000
+#' @param dRate discount rate as a percentage. Default 0%
+#' @param nyears no. of years to project
+#' @param vaccAge age of vaccination. Default 0
+#' @param vaccEff effectiveness of vaccine, as a percentage
+#' @param vaccDur no. of years that vaccine is effective
+#'
+#' @return list
+#' @export
+runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
+                    dalyRate =100000, mortality, initPop = 100000, dRate = 0,
+                    nyears = -1, vaccAge = 0, vaccEff = 100, vaccDur = 10)
+{
+  inc <- as.matrix(inc[match(age_groups$Label, inc$age), "val"])
+  rownames(inc) <- age_groups$Label
+  colnames(inc) <- conditions
+
+  if(costs == 1)
+  {
+    costs <- matrix(rep(1, nrow(age_groups)*length(conditions)),
+                    nrow = nrow(age_groups), ncol = length(conditions) )
+  }else{
+    costs <- as.matrix(costs[,-1])
+  }
+  rownames(costs) <- age_groups$Label
+  colnames(costs) <- conditions
+
+  if(dalys == 1)
+  {
+    dalys <-matrix(rep(1, nrow(age_groups)*length(conditions)),
+                   nrow = nrow(age_groups), ncol = length(conditions) )
+  }else{
+    dalys <- as.matrix(dalys[,-1])
+  }
+  rownames(dalys) <- age_groups$Label
+  colnames(dalys) <- conditions
+
+  numAgeGroups <- nrow(age_groups)
+  maxAge <- sum(age_groups$Years)-1
+  dRate <- dRate/100
+  vaccEff <- vaccEff/100
+  if(nyears == -1) nyears <- maxAge - vaccAge + 1
+
+  #Incidence matrix as a probability
+  IncidenceProb <-inc/rate
+
+  tIndex <- rep(1, age_groups$Years[1])
+  for(i in 2:numAgeGroups) tIndex <- c(tIndex, rep(i, age_groups$Years[i]))
+
+  #create matrix with all costs (per incident) for all ages
+  CostPerIncid <- costs/IncidenceProb
+  CostPerIncid[which(is.na(CostPerIncid)|is.infinite(CostPerIncid))] <- 0
+  cost <- as.matrix(CostPerIncid[tIndex,])
+  rownames(cost) <- 0:maxAge
+
+  #create matrix with all DALYs for all ages
+  DALYSPerIncid <- (dalys/dalyRate)/IncidenceProb #divide by 100k to get per person over population
+  DALYSPerIncid[which(is.na(DALYSPerIncid)|is.infinite(DALYSPerIncid))] <- 0
+  dalys <- as.matrix(DALYSPerIncid[tIndex,]) #DALYS per incident
+  rownames(dalys) <- 0:maxAge
+
+  #create matrix with mortality for all ages
+  #check if mortality has same no. of rows as maxAge+1, else assume
+  #grouped in same way as other data
+  if(nrow(mortality)!= maxAge) mortality <- mortality[tIndex,]
+  mortality[,1] <- 0:maxAge
+  mortality <- mortality[, c("Age Group", "Both sexes")]
+
+  #Create matrix with all transition probabilities for all ages
+  #base transition prob, no vaccination
+  prob <- as.matrix(IncidenceProb[tIndex,])
+  rownames(prob) <- 0:maxAge
+  allStates <- c("Well", conditions, "Deceased")
+
+  #no vaccine
+  #transProb defines the Well and Deceased states, removes probability conditioning
+  #Col names of resulting matrix will have all state names
+  prob0 <- transProb(prob, mortality[,2], maxAge, 0)
+  #vaccine
+  probVacc <- transProb(prob, mortality[,2], maxAge, vaccEff, vaccAge, vaccDur)
+
+  #run models
+  #no vaccine
+  noVacc_mod <- heemodModel(prob0, dalys, dRate, cost, initPop, 0, nyears)
+  #vaccine
+  vacc_mod <- heemodModel(probVacc, dalys, dRate, cost, initPop, vaccAge, nyears)
+
+  return(list(noVacc_mod, vacc_mod))
+}
+
+#' Create table of comparison statistics
+#'
+#' @param noVacc_mod heemod model for no vaccine scenario
+#' @param vacc_mod heemod model for vaccine scenario
+#' @param conditions conditions modeled
+#' @param initPop initial population size. Default 100,000
+#' @param valueVac value of vaccine
+#'
+#' @return data.frame
+#' @export
+makeTable <- function(noVacc_mod, vacc_mod, conditions, initPop = 100000,
+                      valueVac = -1)
+{
+  allStates <- c("Well", conditions, "Deceased")
+
+  #get all costs/dalys columns each age/year
+  outputCols <- grep("dots", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+  costCols <- grep("cost", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+  dalyCols <- grep("utility", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+  numModelStates <- length(intersect(costCols, outputCols))
+  nonZeroCols <- c(1:(length(conditions)+1), numModelStates)
+
+  #incident counts per age
+  noVacc_counts <- noVacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
+  colnames(noVacc_counts) <- allStates
+  vacc_counts <- vacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
+  colnames(vacc_counts) <- allStates
+
+  #costs per age (will be different to what user has given if discounting,
+  #               but same for noVacc to vacc)
+  costs_per_age <- data.frame(noVacc_mod$eval_strategy_list$standard$states)[,intersect(costCols, outputCols)][,nonZeroCols]
+
+  #dalys per age (as above)
+  dalys_per_age <- data.frame(noVacc_mod$eval_strategy_list$standard$states)[,intersect(dalyCols, outputCols)][,nonZeroCols]
+
+  #Incidence nos.
+  noVacc <- apply(data.frame(noVacc_counts[,conditions]), 2, sum)
+  vacc <- apply(data.frame(vacc_counts[,conditions]), 2, sum)
+
+  row1 <- c(noVacc, sum(noVacc))
+  row2 <- c(vacc, sum(vacc))
+  row3 <- 100*c((noVacc-vacc)/noVacc, (sum(noVacc)-sum(vacc))/sum(noVacc)) #% diff
+
+  #Health burden
+  noVacc_dalys <- apply(as.matrix((noVacc_counts*dalys_per_age)[,conditions]), 2, sum)
+  vacc_dalys <- apply(as.matrix((vacc_counts*dalys_per_age)[,conditions]), 2, sum)
+
+  row4 <- c(noVacc_dalys,sum(noVacc_dalys))
+  row5 <- c(vacc_dalys,sum(vacc_dalys))
+  row6 <- 100*c((noVacc_dalys-vacc_dalys)/noVacc_dalys, (sum(noVacc_dalys)-sum(vacc_dalys))/sum(noVacc_dalys))
+
+  #Economic burden
+  noVacc_costs <- apply(as.matrix((noVacc_counts*costs_per_age)[,conditions]), 2, sum)
+  vacc_costs <- apply(as.matrix((vacc_counts*costs_per_age)[,conditions]), 2, sum)
+
+  row7 <- c(noVacc_costs, sum(noVacc_costs))
+  row8 <- c(vacc_costs, sum(vacc_costs))
+  row9 <- 100*c((noVacc_costs-vacc_costs)/noVacc_costs, (sum(noVacc_costs)-sum(vacc_costs))/sum(noVacc_costs))
+
+  #ICER
+  ICER<-findICER(noVacc_costs, vacc_costs, noVacc_dalys, vacc_dalys, initPop, valueVac)
+  totalICER<-findICER(sum(noVacc_costs), sum(vacc_costs), sum(noVacc_dalys), sum(vacc_dalys), initPop, valueVac)
+
+  row10<-c(ICER, totalICER)
+
+  impactT <- rbind(row1, row2, row3, row4, row5, row6, row7, row8, row9, row10)
+  colnames(impactT) <- c(conditions,"Total")
+  rownames(impactT) <- c("Incidents (No Vacc)", "Incidents (Vacc)", "Incidents %",
+                     "DALYs (No Vacc)", "DALYs (Vacc)", "DALYs %",
+                     "Cost (No Vacc)", "Cost (Vacc)", "Cost %",
+                     "ICER")
+  return(impactT)
+}
+
+#' Create line plot comparison between vaccine and no vaccine scenarios
+#'
+#' @param noVacc_mod heemod model for no vaccine scenario
+#' @param vacc_mod heemod model for vaccine scenario
+#' @param conditions conditions modeled
+#'
+#' @return ggplot
+#' @export
+makePlot <- function(noVacc_mod, vacc_mod, conditions)
+{
+  #Currently written for comparison between vacc and no vacc scenario of only
+  #one condition
+
+  allStates <- c("Well", conditions, "Deceased")
+
+  outputCols <- grep("dots", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+  costCols <- grep("cost", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+  numModelStates <- length(intersect(costCols, outputCols))
+  nonZeroCols <- c(1:(length(conditions)+1), numModelStates)
+
+  noVacc_counts <- noVacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
+  colnames(noVacc_counts) <- allStates
+  vacc_counts <- vacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
+  colnames(vacc_counts) <- allStates
+
+  counts <- cbind(noVacc_counts[, conditions], vacc_counts[, conditions])
+  counts<-apply(counts, 2, cumsum)
+  colnames(counts) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
+
+  meltCounts <- reshape2::melt(counts)
+  meltCounts[,1] <- rep(0:(nrow(counts)-1),2)
+  colnames(meltCounts) <- c("Age", "VaccStatus", "NumCases")
+
+  p <- ggplot2::ggplot(data=meltCounts, aes(x=Age, y=NumCases, group=VaccStatus )) +
+                      geom_line(aes(colour=VaccStatus)) +
+                      ylab("Cumulative no. of cases per 100,000 persons") +
+                      theme(legend.title = element_blank())
+  return(p)
+}
+
+
+
+

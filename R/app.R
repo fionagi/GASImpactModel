@@ -84,19 +84,9 @@
 #
 # server <- function(input, output) {
 #
-# #Set constants
-# rate <- 100000
-# dRate <- 0
-# cycle <-85
-#
-#
-#
-# #Incident rates tab
 # impactPlot <- reactiveVal()
 #
-# impactData <- reactive({
-#
-#     input$submitButton1
+# impactData <- eventReactive(input$submitButton1, {
 #
 #     country <- isolate(input$country)
 #     condition <-isolate(input$condition)
@@ -105,61 +95,22 @@
 #     coverage <- isolate(input$coverage)
 #     efficacy <- isolate(input$efficacy)
 #
-#     incR <- getRateData(country, condition)
+#     incR <- getRateData(country, condition)[[1]]
+#     mProb <- getMorData(country)
 #
+#     impModels <- runModel(conditions = condition, inc = incR, mortality = mProb,
+#                      nyears = -1, vaccAge = ageV, vaccEff = efficacy,
+#                      vaccDur = duration)
 #
-#     impT<-markovModel(ageV, incR, 100000, imp_cost, imp_burden,
-#                        imp_bur_rate, imp_mor, imp_popsize, imp_d_rate, imp_cycle,
-#                        imp_vaccAge, imp_vaccEff, imp_vaccDur, imp_valueVacc)
+#     impP <- makePlot(noVacc_mod = impModels[[1]], vacc_mod = impModels[[2]],
+#                       conditions = condition)
 #
-#     meltInc<-melt(impT[c("Incidents (No Vacc)", "Incidents (Vacc)"),-which(colnames(impT)=="Total")])
-#     colnames(meltInc)<-c("Scenario", "Condition", "NoInc")
-#     plot1<-ggplot(data=meltInc, aes(x=Condition, y=NoInc, fill=Scenario )) +
-#       geom_bar(position="stack", stat="identity")+
-#       scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-#       ylab("Healthcare episodes")
+#     impactPlot(impP)
 #
-#     meltBur<-melt(impT[c("DALYs (No Vacc)", "DALYs (Vacc)"),-which(colnames(impT)=="Total")])
-#     colnames(meltBur)<-c("Scenario", "Condition", "NoDALYS")
-#     plot2<-ggplot(data=meltBur, aes(x=Condition, y=NoDALYS, fill=Scenario )) +
-#       geom_bar(position="stack", stat="identity")+
-#       scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-#       ylab("DALYs")
-#
-#     meltCost<-melt(impT[c("Cost (No Vacc)", "Cost (Vacc)"),-which(colnames(impT)=="Total")]/10000)
-#     colnames(meltCost)<-c("Scenario", "Condition", "Cost")
-#     plot3<-ggplot(data=meltCost, aes(x=Condition, y=Cost, fill=Scenario )) +
-#       geom_bar(position="stack", stat="identity")+
-#       scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-#       ylab("Cost* (x 10,000)")+
-#       labs(caption = "* not taking into account cost of vaccine")
-#
-#
-#     CostDiff<-imp_valueVacc*imp_popsize+impT["Cost (Vacc)",]-impT["Cost (No Vacc)",]
-#     DALYSGained<-impT["DALYs (No Vacc)",]-impT["DALYs (Vacc)",]
-#     ICERdata<-data.frame(CostDiff=CostDiff/100000, DALYSGained)
-#
-#     m<-imp_ICER/100000
-#
-#     ymax<-max(abs(ICERdata$CostDiff))
-#     xmax<-max(abs(ICERdata$DALYSGained))
-#     plot4<-ggplot(ICERdata, aes(x=DALYSGained, y=CostDiff, label=rownames(ICERdata)))+
-#       geom_point(aes(colour = factor(rownames(ICERdata))), size=3)+
-#       labs(colour="")+
-#       geom_abline(slope=m, linetype="dashed")+
-#       geom_text(x=-ymax/m, y=-ymax+ymax/10, label="Maximum acceptable ICER", size=4)+
-#       geom_hline(yintercept = 0)+
-#       geom_vline(xintercept = 0)+
-#       xlim(-xmax, xmax)+
-#       ylim(-ymax, ymax)+
-#       xlab("DALYs gained")+
-#       ylab("Cost difference (x 100,000)")
-#
-#     impactPlot(ggarrange(plot1, plot2, plot3, plot4,
-#                          ncol = 2, nrow = 2))
-#
-#
-#     impT<-round(impT, digits=0)
+#     impT <- makeTable(noVacc_mod = impModels[[1]], vacc_mod = impModels[[2]],
+#                       conditions = condition, initPop = 100000,
+#                           valueVac = -1)
+#     impT <- round(impT, digits=0)
 #
 #     impT
 #
