@@ -3,6 +3,7 @@
 export(dalys)
 export(findICER)
 export(findVacValue)
+export(getCountries)
 export(getMorData)
 export(getPopData)
 export(getRateData)

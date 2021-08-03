@@ -23,5 +23,5 @@ age_groups <- dplyr::tribble(
   "65 to 69",  5,
   "70 to 74",  5,
   "75 to 79",  5,
-  "80 plus",   5
+  "80 to 84",   5
 )

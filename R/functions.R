@@ -1,3 +1,20 @@
+#' Retrieve all countries in a particular region
+#'
+#' @param region UN region
+#'
+#' @return vector
+#' @export
+getCountries <- function(region)
+{
+  if(region == "All")
+  {
+    countries <- data.region$Country
+  } else{
+    countries <- data.region$Country[which(data.region$Region == region)]
+  }
+  return(countries)
+}
+
 #' Retrieve location and condition specific incidence and deaths data
 #'
 #' @param location country that matches UN data
@@ -776,10 +793,10 @@ makePlot <- function(noVacc_mod, vacc_mod, conditions)
   meltCounts[,1] <- rep(0:(nrow(counts)-1),2)
   colnames(meltCounts) <- c("Age", "VaccStatus", "NumCases")
 
-  p <- ggplot2::ggplot(data=meltCounts, aes(x=Age, y=NumCases, group=VaccStatus )) +
-                      geom_line(aes(colour=VaccStatus)) +
-                      ylab("Cumulative no. of cases per 100,000 persons") +
-                      theme(legend.title = element_blank())
+  p <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=Age, y=NumCases, group=VaccStatus )) +
+                      ggplot2::geom_line(ggplot2::aes(colour=VaccStatus)) +
+                      ggplot2::ylab("Cumulative no. of cases per 100,000 persons") +
+                      ggplot2::theme(legend.title = ggplot2::element_blank())
   return(p)
 }
 

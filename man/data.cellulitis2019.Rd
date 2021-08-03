@@ -5,11 +5,11 @@
 \alias{data.cellulitis2019}
 \title{Incidence and death rates for cellulitis}
 \format{
-A data table containing 8532 observations of 5 variables.
+A data table containing 18450 observations of 6 variables.
 \describe{
 \item{measure}{Either Incidence or Deaths}
 \item{location}{Region, subregion, country or area}
-\item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 plus}
+\item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 to 84}
 \item{val}{incident rate per 100,000 persons}
 \item{upper}{upper bound of 95\% confidence interval}
 \item{lower}{lower bound of 95\% confidence interval}
@@ -22,8 +22,9 @@ A data table containing 8532 observations of 5 variables.
 data.cellulitis2019
 }
 \description{
-Incidence and death rates (per 100,000 persons) for 2019 by country/region and age group.
-Data set extracted from the Global Health Data Exchange (GHDx), created and
-supported by the Institute for Health Metrics and Evaluation (IHME)
+Incidence and death rates (per 100,000 persons) for 2019 by country/region
+and age group for 205 locations.Data set extracted from the Global Health
+Data Exchange (GHDx), created and supported by the Institute for Health
+Metrics and Evaluation (IHME)
 }
 \keyword{datasets}
