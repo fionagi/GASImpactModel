@@ -12,7 +12,7 @@ getRateData(location, condition)
 \item{condition}{either RHD or cellulitis}
 }
 \value{
-list(data.frame, data.frame)
+list(data.frame, data.frame, data.frame)
 }
 \description{
 Retrieve location and condition specific incidence and deaths data

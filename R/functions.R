@@ -20,7 +20,7 @@ getCountries <- function(region)
 #' @param location country that matches UN data
 #' @param condition either RHD or cellulitis
 #'
-#' @return list(data.frame, data.frame)
+#' @return list(data.frame, data.frame, data.frame)
 #' @export
 getRateData <- function(location, condition)
 {
@@ -30,8 +30,40 @@ getRateData <- function(location, condition)
   data <- get(condData)
   inc <- data[data$location==location & data$measure=="Incidence",]
   deaths <- data[data$location==location & data$measure=="Deaths",]
+  dalys <- data[data$location==location & data$measure=="DALYs (Disability-Adjusted Life Years)",]
 
-  return(list(inc, deaths))
+  inc <- missingData(inc)
+  deaths <- missingData(deaths)
+  dalys <- missingData(dalys)
+
+  return(list(inc, deaths, dalys))
+}
+
+#' Check for missing age-specific data and add 0 row
+#'
+#' @param dataF data frame from getRateData
+#'
+#' @return data.frame
+#' @export
+missingData <- function(dataF)
+{
+  if(nrow(dataF) != nrow(age_groups))
+  {
+
+    missAge <- setdiff(age_groups$Label, dataF$age)
+
+    for(i in 1:length(missAge))
+    {
+      dataF <- rbind(dataF, dataF[1,])
+      dataF[nrow(dataF),]$age <- missAge[i]
+      dataF[nrow(dataF),]$val <- 0
+      dataF[nrow(dataF),]$upper <- 0
+      dataF[nrow(dataF),]$lower <- 0
+    }
+
+  }
+  return(dataF)
+
 }
 
 #' Retrieve location population data
@@ -333,7 +365,7 @@ findVacValue <- function(c0, cV, e0, eV, popS, ICER)
 #' @export
 findICER <- function(c0, cV, e0, eV, popS, VV)
 {
-  ICER <-((VV*popS)+cV-c0)/(e0-eV)
+  ICER <- ((VV*popS)+cV-c0)/(e0-eV)
   return(ICER)
 }
 
@@ -362,10 +394,10 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 
   if(noDummyStates>0)
   {
-    dummyMat<-matrix(0, nrow=nrow(probM), ncol=noDummyStates)
-    probM<-cbind(probM[,-which(colnames(probM)=="Deceased")], dummyMat, probM[,"Deceased"])
-    dalysM<-cbind(dalysM, dummyMat)
-    costM<-cbind(costM, dummyMat)
+    dummyMat <- matrix(0, nrow=nrow(probM), ncol=noDummyStates)
+    probM <- cbind(probM[,-which(colnames(probM)=="Deceased")], dummyMat, probM[,"Deceased"])
+    dalysM <- cbind(dalysM, dummyMat)
+    costM <- cbind(costM, dummyMat)
   }
 
   #At the moment, maximum of 12 states in total
@@ -628,7 +660,7 @@ runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
     dalys <-matrix(rep(1, nrow(age_groups)*length(conditions)),
                    nrow = nrow(age_groups), ncol = length(conditions) )
   }else{
-    dalys <- as.matrix(dalys[,-1])
+    dalys <- as.matrix(dalys[match(age_groups$Label, dalys$age), "val"])
   }
   rownames(dalys) <- age_groups$Label
   colnames(dalys) <- conditions
@@ -765,10 +797,12 @@ makeTable <- function(noVacc_mod, vacc_mod, conditions, initPop = 100000,
 #' @param noVacc_mod heemod model for no vaccine scenario
 #' @param vacc_mod heemod model for vaccine scenario
 #' @param conditions conditions modeled
+#' @param vAge vaccination age
+#' @param vDur vaccination durability
 #'
 #' @return ggplot
 #' @export
-makePlot <- function(noVacc_mod, vacc_mod, conditions)
+makePlot <- function(noVacc_mod, vacc_mod, conditions, vAge, vDur)
 {
   #Currently written for comparison between vacc and no vacc scenario of only
   #one condition
@@ -777,29 +811,82 @@ makePlot <- function(noVacc_mod, vacc_mod, conditions)
 
   outputCols <- grep("dots", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
   costCols <- grep("cost", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+  dalyCols <- grep("utility", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
   numModelStates <- length(intersect(costCols, outputCols))
   nonZeroCols <- c(1:(length(conditions)+1), numModelStates)
 
+  #incident counts per age
   noVacc_counts <- noVacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
   colnames(noVacc_counts) <- allStates
   vacc_counts <- vacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
   colnames(vacc_counts) <- allStates
 
+  #costs per age (will be different to what user has given if discounting,
+  #               but same for noVacc to vacc)
+  costs_per_age <- data.frame(noVacc_mod$eval_strategy_list$standard$states)[,intersect(costCols, outputCols)][,nonZeroCols]
+
+  #dalys per age (as above)
+  dalys_per_age <- data.frame(noVacc_mod$eval_strategy_list$standard$states)[,intersect(dalyCols, outputCols)][,nonZeroCols]
+  colnames(dalys_per_age) <- allStates
+
+  #noVacc dalys vs. vacc dalys
+  noVacc_dalys<-(noVacc_counts*dalys_per_age)[,conditions]
+  vacc_dalys<-(vacc_counts*dalys_per_age)[,conditions]
+  dalys <- cbind(noVacc_dalys, vacc_dalys)
+  colnames(dalys) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
+  dalys <- dalys[(vAge+1):vDur, ]
+
+  meltDalys <- reshape2::melt(dalys)
+  meltDalys[,1] <- rep(vAge:(vDur-1),2)
+  colnames(meltDalys) <- c("Age", "VaccStatus", "DALYs")
+
   counts <- cbind(noVacc_counts[, conditions], vacc_counts[, conditions])
-  counts<-apply(counts, 2, cumsum)
+  counts <- apply(counts, 2, cumsum)
   colnames(counts) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
+  counts <- counts[(vAge+1):vDur, ]
 
   meltCounts <- reshape2::melt(counts)
-  meltCounts[,1] <- rep(0:(nrow(counts)-1),2)
+  meltCounts[,1] <- rep(vAge:(vDur-1),2)
   colnames(meltCounts) <- c("Age", "VaccStatus", "NumCases")
 
-  p <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=Age, y=NumCases, group=VaccStatus )) +
-                      ggplot2::geom_line(ggplot2::aes(colour=VaccStatus)) +
-                      ggplot2::ylab("Cumulative no. of cases per 100,000 persons") +
-                      ggplot2::theme(legend.title = ggplot2::element_blank())
-  return(p)
+  pDalys <- ggplot2::ggplot(data=meltDalys, ggplot2::aes(x=Age, y=DALYs, fill=VaccStatus )) +
+                ggplot2::geom_bar(position="stack", stat="identity")+
+                ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
+                ggplot2::ylab("DALYs")
+  pCount <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=Age, y=NumCases, fill=VaccStatus )) +
+                ggplot2::geom_bar(position="stack", stat="identity")+
+                ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
+                ggplot2::ylab("Incidents")
+  return(list(pDalys, pCount))
 }
 
+#' Create bar plot (with uncertainty values) of current (2019) data
+#'
+#' Incidence, DALYs or deaths per 100,000 persons
+#'
+#' @param plot_data data frame with age group, val
+#'             and upper and lower 95% CI of one of Incidencem DALYs or deaths
+#' @param ylabel y-axis label
+#' @param colFill colour of bars
+#'
+#' @return ggplot
+#' @export
+makeBarPlot <- function(plot_data, ylabel, colFill = "steelblue")
+{
+  #Currently written for comparison between vacc and no vacc scenario of only
+  #one condition
 
+  plot_data <- plot_data[match(age_groups$Label, plot_data$age),]
+
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x=age, y=val)) +
+                    ggplot2::geom_bar(position=ggplot2::position_dodge(),
+                                      stat="identity", fill = colFill) +
+                    ggplot2::geom_errorbar(ggplot2::aes(ymin=lower, ymax=upper),
+                              width = 0.2, position=ggplot2::position_dodge(0.9)) +
+                    ggplot2::ylab(ylabel) +
+                    ggplot2::xlab("Age")
+
+  return(p)
+}
 
 

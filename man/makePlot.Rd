@@ -4,7 +4,7 @@
 \alias{makePlot}
 \title{Create line plot comparison between vaccine and no vaccine scenarios}
 \usage{
-makePlot(noVacc_mod, vacc_mod, conditions)
+makePlot(noVacc_mod, vacc_mod, conditions, vAge, vDur)
 }
 \arguments{
 \item{noVacc_mod}{heemod model for no vaccine scenario}
@@ -12,6 +12,10 @@ makePlot(noVacc_mod, vacc_mod, conditions)
 \item{vacc_mod}{heemod model for vaccine scenario}
 
 \item{conditions}{conditions modeled}
+
+\item{vAge}{vaccination age}
+
+\item{vDur}{vaccination durability}
 }
 \value{
 ggplot

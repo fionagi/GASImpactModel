@@ -1,0 +1,24 @@
+Package: GASImpactModel
+Title: Model the current and future health and economic impact of Strep A diseases
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Fiona",
+           family = "Giannini",
+           role = c("aut", "cre"),
+           email = "fiona.giannini@telethonkids.org.au")
+Description: An app to estimate the current impact of Strep A diseases using health
+      and economic metrics, and to investigate the affect of a vaccine on predicted
+      future burdens of Strep A diseases for a given cohort.
+License: AGPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+    FinCal,
+    ggplot2,
+    heemod,
+    reshape2,
+    stats,
+    stringr,
+    triangle
