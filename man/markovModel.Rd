@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{markovModel}
 \alias{markovModel}
-\title{Run Markov models for vaccine impact scenario}
+\title{REDUNDANT FUNCTION, WILL REMOVE
+Run Markov models for vaccine impact scenario}
 \usage{
 markovModel(
   age,

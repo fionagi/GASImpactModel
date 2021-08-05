@@ -102,6 +102,7 @@ getMorData <- function(location)
   #change age labels to be the same as lookup
   mor$Age <- str_replace(mor$Age, " years", "")
   mor$Age <- str_replace(mor$Age, "-", " to ")
+  mor$Age <- str_replace(mor$Age, "15 to 19 ", "15 to 19")
 
   #remove 85+ row to be compatible with incidence data
   mor <- mor[-which(mor$Age == "85+"),]
@@ -479,6 +480,7 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 }
 
 
+#' REDUNDANT FUNCTION, WILL REMOVE
 #' Run Markov models for vaccine impact scenario
 #' @description Run Markov models for vaccine impact scenario and produce table
 #' of comparison metrics. This function calls transProb and heemodModel
@@ -707,9 +709,13 @@ runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
   #create matrix with mortality for all ages
   #check if mortality has same no. of rows as maxAge+1, else assume
   #grouped in same way as other data
-  if(nrow(mortality)!= maxAge) mortality <- mortality[tIndex,]
+  if(nrow(mortality)!= maxAge)
+  {
+    mortality <- mortality[match(age_groups$Label, mortality$Age), ]
+    mortality <- mortality[tIndex,]
+  }
   mortality[,1] <- 0:maxAge
-  mortality <- mortality[, c("Age Group", "Both sexes")]
+  mortality <- mortality[, c("Age", "Value")]
 
   #Create matrix with all transition probabilities for all ages
   #base transition prob, no vaccination
