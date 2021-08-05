@@ -63,50 +63,22 @@
 #' @source \url{http://ghdx.healthdata.org/gbd-results-tool}
 "data.cellulitis2019"
 
-#' Probability of mortality - Australia
+#' Probability of mortality
 #'
 #' Probability of dying between ages x and x+1 (2019). Data from the Global
 #' Health Observatory, WHO
 #'
-#' @format A data table containing 19 observations of 4 variables.
+#' @format A data table containing 6954 observations of 5 variables.
 #' \describe{
+#'   \item{Region}{Europe, Western Pacific, Americas, Eastern Mediterranean,
+#'                 Africa and South-East Asia}
+#'   \item{Location}{country or area}
+#'   \item{Sex}{female, male}
 #'   \item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-#'   \item{Both sexes}{combined probability}
-#'   \item{Male}{probability for males}
-#'   \item{Female}{probability for females}
+#'   \item{Value}{probability of mortality}
 #' }
-#' @source \url{https://apps.who.int/gho/data/node.resources}
-"data.life.australia2019"
-
-#' Probability of mortality - New Zealand
-#'
-#' Probability of dying between ages x and x+1 (2019). Data from the Global
-#' Health Observatory, WHO
-#'
-#' @format A data table containing 19 observations of 4 variables.
-#' \describe{
-#'   \item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-#'   \item{Both sexes}{combined probability}
-#'   \item{Male}{probability for males}
-#'   \item{Female}{probability for females}
-#' }
-#' @source \url{https://apps.who.int/gho/data/node.resources}
-"data.life.new.zealand2019"
-
-#' Probability of mortality - Fiji
-#'
-#' Probability of dying between ages x and x+1 (2019). Data from the Global
-#' Health Observatory, WHO
-#'
-#' @format A data table containing 19 observations of 4 variables.
-#' \describe{
-#'   \item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-#'   \item{Both sexes}{combined probability}
-#'   \item{Male}{probability for males}
-#'   \item{Female}{probability for females}
-#' }
-#' @source \url{https://apps.who.int/gho/data/node.resources}
-"data.life.fiji2019"
+#' @source \url{https://www.who.int/data/gho/data/indicators/indicator-details/GHO/gho-ghe-life-tables-by-country}
+"data.mortality2019"
 
 
 

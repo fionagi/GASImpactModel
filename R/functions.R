@@ -74,7 +74,7 @@ missingData <- function(dataF)
 #' @export
 getPopData <- function(location)
 {
-  pop <- data.popbyage2020[data.popbyage2020$Country==location, ]
+  pop <- data.popbyage2020[data.popbyage2020$Country == location, ]
 
   return(pop)
 }
@@ -87,9 +87,24 @@ getPopData <- function(location)
 #' @export
 getMorData <- function(location)
 {
-  data <- stringr::str_replace(paste("data.life.", tolower(location), "2019", sep=''), " ", "." )
-  mor <- get(data)
-  mor <- mor[-nrow(mor),] #remove 85+ row to be compatible with incidence data
+  mor <- data.mortality2019[data.mortality2019$Location == location, ]
+
+  #Get mean mortality of female and male
+  for(iAge in unique(mor$Age))
+  {
+    i <- which(mor$Age == iAge)
+    mor[i, ]$Value <- mean(as.numeric(mor[i, ]$Value))
+    mor[i, ]$Sex <- "Both"
+  }
+
+  mor <- dplyr::distinct(mor)
+
+  #change age labels to be the same as lookup
+  mor$Age <- str_replace(mor$Age, " years", "")
+  mor$Age <- str_replace(mor$Age, "-", " to ")
+
+  #remove 85+ row to be compatible with incidence data
+  mor <- mor[-which(mor$Age == "85+"),]
 
   return(mor)
 }
