@@ -23,7 +23,7 @@ runModel(
 \arguments{
 \item{conditions}{condition names}
 
-\item{inc}{incident rates for each condition}
+\item{inc}{incidence rates for each condition}
 
 \item{rate}{rate used for inc. Default 100,000}
 

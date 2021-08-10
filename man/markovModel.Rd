@@ -25,7 +25,7 @@ markovModel(
 \arguments{
 \item{age}{age group names and year range}
 
-\item{inc}{incident rates for each condition}
+\item{inc}{incidence rates for each condition}
 
 \item{rate}{rate used for inc}
 

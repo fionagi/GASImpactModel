@@ -32,7 +32,7 @@
 #'  Data Exchange (GHDx), created and supported by the Institute for Health
 #'  Metrics and Evaluation (IHME)
 #'
-#' @format A data table containing 18040 observations of 6 variables.
+#' @format A data table containing 16104 observations of 6 variables.
 #' \describe{
 #'   \item{measure}{Either Incidence or Deaths}
 #'   \item{location}{Region, subregion, country or area}
@@ -51,7 +51,7 @@
 #'  Data Exchange (GHDx), created and supported by the Institute for Health
 #'  Metrics and Evaluation (IHME)
 #'
-#' @format A data table containing 18450 observations of 6 variables.
+#' @format A data table containing 16470 observations of 6 variables.
 #' \describe{
 #'   \item{measure}{Either Incidence or Deaths}
 #'   \item{location}{Region, subregion, country or area}

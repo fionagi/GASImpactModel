@@ -19,7 +19,7 @@ dalys(
 )
 }
 \arguments{
-\item{incR}{incident rates}
+\item{incR}{incidence rates}
 
 \item{rate}{used for incR eg. per 100 persons, per 100k}
 

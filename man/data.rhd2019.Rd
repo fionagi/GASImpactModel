@@ -5,7 +5,7 @@
 \alias{data.rhd2019}
 \title{Incidence and death rates for rheumatic heart disease (RHD)}
 \format{
-A data table containing 18040 observations of 6 variables.
+A data table containing 16104 observations of 6 variables.
 \describe{
 \item{measure}{Either Incidence or Deaths}
 \item{location}{Region, subregion, country or area}

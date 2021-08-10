@@ -8,9 +8,9 @@ getCountries <- function(region)
 {
   if(region == "All")
   {
-    countries <- data.region$Country
+    countries <- intersect(data.region$Country, unique(data.rhd2019$location))
   } else{
-    countries <- data.region$Country[which(data.region$Region == region)]
+    countries <- intersect(data.region$Country[which(data.region$Region == region)], unique(data.rhd2019$location))
   }
   return(countries)
 }
@@ -100,9 +100,9 @@ getMorData <- function(location)
   mor <- dplyr::distinct(mor)
 
   #change age labels to be the same as lookup
-  mor$Age <- str_replace(mor$Age, " years", "")
-  mor$Age <- str_replace(mor$Age, "-", " to ")
-  mor$Age <- str_replace(mor$Age, "15 to 19 ", "15 to 19")
+  mor$Age <- stringr::str_replace(mor$Age, " years", "")
+  mor$Age <- stringr::str_replace(mor$Age, "-", " to ")
+  mor$Age <- stringr::str_replace(mor$Age, "15 to 19 ", "15 to 19")
 
   #remove 85+ row to be compatible with incidence data
   mor <- mor[-which(mor$Age == "85+"),]
@@ -111,7 +111,7 @@ getMorData <- function(location)
 }
 
 
-#' Find incident rates with 95% uncertainty intervals
+#' Find incidence rates with 95% uncertainty intervals
 #'
 #' @param careEp  raw care episodes-at-age
 #' @param pop population-at-age that care episodes relate to
@@ -193,7 +193,7 @@ incRates <- function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
 
 #' Find DALYs with 95% uncertainty intervals
 #'
-#' @param incR incident rates
+#' @param incR incidence rates
 #' @param rate used for incR eg. per 100 persons, per 100k
 #' @param pop population-at-age, same age groups as incR
 #' @param life life-expectancy-at-age, same age groups as incR
@@ -268,7 +268,7 @@ dalys<-function(incR, rate, pop, life, dw_A, dw_C, prog, dRate, duration, deaths
     #uncertainty
     for(j in 1:length(age))
     {
-      #Note: gamma distribution parameters are an approximation if the incident
+      #Note: gamma distribution parameters are an approximation if the incidence
       #rates were based on a care population smaller than country population
       dalyT[j, paste(i, "Lower")] <- 0
       dalyT[j, paste(i, "Upper")] <- 0
@@ -486,7 +486,7 @@ heemodModel <-function(probM, dalysM, dR, costM, Initpop, ageInit, cycleT)
 #' of comparison metrics. This function calls transProb and heemodModel
 #'
 #' @param age age group names and year range
-#' @param inc incident rates for each condition
+#' @param inc incidence rates for each condition
 #' @param rate rate used for inc
 #' @param costs costs per person
 #' @param dalys DALYs for each condition
@@ -558,8 +558,8 @@ markovModel<- function(age, inc, rate, costs, dalys, dalyRate, mortality, initPo
 
   #no vaccine
   noVacc_mod<-heemodModel(prob0, dalys, dRate, cost, initPop, 0, nyears)
-  #vaccine
-  vacc_mod<-heemodModel(probVacc, dalys, dRate, cost, initPop, vaccAge, nyears)
+  #vaccine (run from age 0 no matter when vaccinating)
+  vacc_mod<-heemodModel(probVacc, dalys, dRate, cost, initPop, 0, nyears)
 
   #####################################################################################
   # #MODEL OUTPUTS
@@ -635,7 +635,7 @@ markovModel<- function(age, inc, rate, costs, dalys, dalyRate, mortality, initPo
 #' of comparison metrics. This function calls transProb and heemodModel
 #'
 #' @param conditions condition names
-#' @param inc incident rates for each condition
+#' @param inc incidence rates for each condition
 #' @param rate rate used for inc. Default 100,000
 #' @param costs costs per person for each condition and age group.
 #'              nAgeGroups x (nConditions + 1) matrix, col1 = ageGroup,
@@ -733,8 +733,8 @@ runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
   #run models
   #no vaccine
   noVacc_mod <- heemodModel(prob0, dalys, dRate, cost, initPop, 0, nyears)
-  #vaccine
-  vacc_mod <- heemodModel(probVacc, dalys, dRate, cost, initPop, vaccAge, nyears)
+  #vaccine  (run from age 0 no matter when vaccinating)
+  vacc_mod <- heemodModel(probVacc, dalys, dRate, cost, initPop, 0, nyears)
 
   return(list(noVacc_mod, vacc_mod))
 }
@@ -855,29 +855,33 @@ makePlot <- function(noVacc_mod, vacc_mod, conditions, vAge, vDur)
   vacc_dalys<-(vacc_counts*dalys_per_age)[,conditions]
   dalys <- cbind(noVacc_dalys, vacc_dalys)
   colnames(dalys) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
-  dalys <- dalys[(vAge+1):vDur, ]
+  dalys <- dalys[(vAge+1):(vAge+vDur), ]
 
-  meltDalys <- reshape2::melt(dalys)
-  meltDalys[,1] <- rep(vAge:(vDur-1),2)
+  meltDalys <- reshape2::melt(as.matrix(dalys))
+  meltDalys[,1] <- rep(vAge:(vAge+vDur-1),2)
   colnames(meltDalys) <- c("Age", "VaccStatus", "DALYs")
 
   counts <- cbind(noVacc_counts[, conditions], vacc_counts[, conditions])
-  counts <- apply(counts, 2, cumsum)
+  #counts <- apply(counts, 2, cumsum)
   colnames(counts) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
-  counts <- counts[(vAge+1):vDur, ]
+  counts <- counts[(vAge+1):(vAge+vDur), ]
 
-  meltCounts <- reshape2::melt(counts)
-  meltCounts[,1] <- rep(vAge:(vDur-1),2)
+  meltCounts <- reshape2::melt(as.matrix(counts))
+  meltCounts[,1] <- rep(vAge:(vAge+vDur-1),2)
   colnames(meltCounts) <- c("Age", "VaccStatus", "NumCases")
 
-  pDalys <- ggplot2::ggplot(data=meltDalys, ggplot2::aes(x=Age, y=DALYs, fill=VaccStatus )) +
-                ggplot2::geom_bar(position="stack", stat="identity")+
-                ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-                ggplot2::ylab("DALYs")
-  pCount <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=Age, y=NumCases, fill=VaccStatus )) +
-                ggplot2::geom_bar(position="stack", stat="identity")+
-                ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-                ggplot2::ylab("Incidents")
+  pDalys <- ggplot2::ggplot(data=meltDalys, ggplot2::aes(x=factor(Age), y=DALYs, fill=VaccStatus )) +
+                              ggplot2::geom_bar(position="stack", stat="identity")+
+                              ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
+                              ggplot2::ylab("DALYs") +
+                              ggplot2::xlab("Age")
+
+  pCount <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=factor(Age), y=NumCases, fill=VaccStatus )) +
+                              ggplot2::geom_bar(position="stack", stat="identity")+
+                              ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
+                              ggplot2::ylab("Incidence")+
+                              ggplot2::xlab("Age")
+
   return(list(pDalys, pCount))
 }
 

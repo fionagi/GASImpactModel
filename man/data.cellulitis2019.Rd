@@ -5,7 +5,7 @@
 \alias{data.cellulitis2019}
 \title{Incidence and death rates for cellulitis}
 \format{
-A data table containing 18450 observations of 6 variables.
+A data table containing 16470 observations of 6 variables.
 \describe{
 \item{measure}{Either Incidence or Deaths}
 \item{location}{Region, subregion, country or area}
