@@ -13,6 +13,7 @@
 #
 #
 # library(shiny)
+# library(shinyWidgets)
 # library(ggpubr)
 # library(GASImpactModel)
 #
@@ -41,6 +42,13 @@
 #                 selectInput(inputId = "condition",
 #                             label = "Condition:",
 #                             choices = c("Rheumatic Heart Disease", "Cellulitis")),
+#
+#                 conditionalPanel(
+#                   condition = "input.condition == 'Cellulitis'",
+#                   sliderInput("a",
+#                               label = "Proportion attributable to GAS:",
+#                               min = 0, max = 1,step = 0.1, value = 0)
+#                 ),
 #
 #                 h4("Vaccine settings"),
 #                 sliderInput(inputId = "ageV",
@@ -75,6 +83,14 @@
 #                                         vaccination to end of durability. Using
 #                                         data from selected country and condition"),
 #                                      br(),
+#                                      radioGroupButtons(
+#                                        inputId = "outputChoice1",
+#                                        choices = c("Numbers", "Rate"),
+#                                        selected = "Rate",
+#                                        checkIcon = list(yes = icon("check")),
+#                                      ),
+#                                      tags$script("$(\"input:radio[name='outputChoice1'][value='Numbers']\").parent().css('background-color', 'lightgrey');"),
+#                                      tags$script("$(\"input:radio[name='outputChoice1'][value='Rate']\").parent().css('background-color', 'lightgrey');"),
 #                                      plotOutput("impactPlot")),
 #                             tabPanel("Age-specific parameters",
 #                                      br(),
@@ -83,6 +99,14 @@
 #                                        95% confidence intervals. Data is from Global Health
 #                                        Data Exchange (2019)"),
 #                                      br(),
+#                                      radioGroupButtons(
+#                                        inputId = "outputChoice2",
+#                                        choices = c("Numbers", "Rate"),
+#                                        selected = "Rate",
+#                                        checkIcon = list(yes = icon("check")),
+#                                      ),
+#                                      tags$script("$(\"input:radio[name='outputChoice2'][value='Numbers']\").parent().css('background-color', 'lightgrey');"),
+#                                      tags$script("$(\"input:radio[name='outputChoice2'][value='Rate']\").parent().css('background-color', 'lightgrey');"),
 #                                      plotOutput("currentPlot")),
 #                             tabPanel("Help"),
 #                             tabPanel("About")
@@ -135,6 +159,7 @@
 #     duration <- isolate(input$duration)
 #     coverage <- isolate(input$coverage)
 #     efficacy <- isolate(input$efficacy)
+#     overallEff <- (efficacy*coverage)/100 #as a percentage
 #
 #     incR <- getRateData(country, condition)[[1]]
 #     dalys <- getRateData(country, condition)[[3]]
@@ -142,18 +167,32 @@
 #
 #     impModels <- runModel(conditions = condition, inc = incR, dalys = dalys,
 #                           mortality = mProb, nyears = -1, vaccAge = ageV,
-#                           vaccEff = efficacy, vaccDur = duration)
+#                           vaccEff = overallEff, vaccDur = duration)
 #     impModels
 # })
 #
 # impactPlot <- reactive({
 #   impModels <- impactData()
+#
+#   country <- isolate(input$country)
 #   ageV <- isolate(input$ageV)
 #   duration <- isolate(input$duration)
 #   condition <-isolate(input$condition)
+#   coverage <- isolate(input$coverage)
+#   efficacy <- isolate(input$efficacy)
+#   overallEff <- (efficacy*coverage)/100 #as a percentage
+#
+#   deaths <- getRateData(country, condition)[[2]]
+#
+#
+#
+#   deaths_mod <-findDeaths(noVaccDeaths = deaths, conditions = condition,
+#                           vaccAge = ageV, vaccEff = overallEff,
+#                           vaccDur = duration)
+#
 #   p <- makePlot(noVacc_mod = impModels[[1]], vacc_mod = impModels[[2]],
-#            conditions = condition, vAge = ageV, vDur = duration)
-#   ggarrange(p[[1]], p[[2]], ncol = 1, nrow = 2)
+#                 deaths_mod, conditions = condition, vAge = ageV, vDur = duration)
+#   ggarrange(p[[1]], p[[2]], p[[3]], ncol = 1, nrow = 3)
 # })
 #
 # impactTable <- reactive({
