@@ -3,7 +3,7 @@
 \docType{data}
 \name{data.mortality2019}
 \alias{data.mortality2019}
-\title{Probability of mortality}
+\title{Probability of mortality - 2019}
 \format{
 A data table containing 6954 observations of 5 variables.
 \describe{
@@ -22,7 +22,7 @@ Africa and South-East Asia}
 data.mortality2019
 }
 \description{
-Probability of dying between ages x and x+1 (2019). Data from the Global
+Probability of dying between ages x and x+n (2019). Data from the Global
 Health Observatory, WHO
 }
 \keyword{datasets}

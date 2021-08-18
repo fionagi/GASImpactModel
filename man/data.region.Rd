@@ -3,7 +3,7 @@
 \docType{data}
 \name{data.region}
 \alias{data.region}
-\title{Countries by UN regions}
+\title{Countries by United Nations regions}
 \format{
 A data table containing 230 observations of 2 variables.
 \describe{
@@ -18,6 +18,6 @@ A data table containing 230 observations of 2 variables.
 data.region
 }
 \description{
-Countries by UN regions
+Countries by United Nations regions
 }
 \keyword{datasets}

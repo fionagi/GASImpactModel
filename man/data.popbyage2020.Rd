@@ -3,23 +3,24 @@
 \docType{data}
 \name{data.popbyage2020}
 \alias{data.popbyage2020}
-\title{Population by age group}
+\title{Population by age - 2020}
 \format{
-A data table containing 251 observations of 22 variables.
+A data table containing 251 observations of 102 variables.
 \describe{
 \item{Country}{Region, subregion, country or area}
-\item{0-4, 5-9, ..., 95-99, 100+}{5-year age groups}
+\item{0, 1, ..., 100}{population in 1-year age groups}
 }
 }
 \source{
-\url{https://population.un.org/wpp/Download/Standard/Population/}
+\url{https://population.un.org/wpp/Download/Standard/Interpolated/}
 }
 \usage{
 data.popbyage2020
 }
 \description{
-Total population (both sexes combined) for 2020 by 5-year age group (in thousands).
-Data set extracted from "Annual Population by Age Groups - Both Sexes" obtained
-from source.
+Total population (both sexes combined) for 2020 by 1-year age
+groups (in thousands).
+Data set extracted from United Nations data "Annual Population by Age - Both Sexes"
+obtained from source.
 }
 \keyword{datasets}
