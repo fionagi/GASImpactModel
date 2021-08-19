@@ -14,7 +14,7 @@ runModel(
   mortality,
   initPop = 1e+05,
   dRate = 0,
-  nyears = -1,
+  nyears = 85,
   vaccAge = 0,
   vaccEff = 100,
   vaccDur = 10

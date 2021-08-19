@@ -4,14 +4,17 @@
 \alias{getMorData}
 \title{Retrieve probability of all-cause mortality}
 \usage{
-getMorData(location)
+getMorData(location, yearV)
 }
 \arguments{
 \item{location}{country that matches UN data}
+
+\item{yearV}{year of vaccine introduction}
 }
 \value{
 data.frame
 }
 \description{
-Retrieve probability of all-cause mortality
+Follow a cohort from age 0 in year of vaccine introduction for
+a period of 85 years, retrieving probability of death for each year of life
 }

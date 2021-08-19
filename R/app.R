@@ -45,12 +45,16 @@
 #
 #                 conditionalPanel(
 #                   condition = "input.condition == 'Cellulitis'",
-#                   sliderInput("a",
+#                   sliderInput("propAttr",
 #                               label = "Proportion attributable to GAS:",
 #                               min = 0, max = 1,step = 0.1, value = 0)
 #                 ),
 #
 #                 h4("Vaccine settings"),
+#                 sliderTextInput(inputId = "yearV",
+#                             label = "Year of vaccine introduction",
+#                             choices = as.character(2020:2050), selected = "2020"
+#                 ),
 #                 sliderInput(inputId = "ageV",
 #                             label = "Age of vaccination",
 #                             min = 0, max = 80, value = 0, step = 1
@@ -78,14 +82,13 @@
 #                 tabsetPanel(type = "tabs",
 #                             tabPanel("Impact analysis",
 #                                      br(),
-#                                      p("Comparison of incidence and
-#                                         DALYs per 100,000 persons, from age of
-#                                         vaccination to end of durability. Using
+#                                      p("Comparison of incidents, deaths and DALYs (numbers or rates per 100,000 persons),
+#                                         from age of vaccination to end of durability. Using
 #                                         data from selected country and condition"),
 #                                      br(),
 #                                      radioGroupButtons(
 #                                        inputId = "outputChoice1",
-#                                        choices = c("Numbers", "Rate"),
+#                                        choices = c("Number", "Rate"),
 #                                        selected = "Rate",
 #                                        checkIcon = list(yes = icon("check")),
 #                                      ),
@@ -94,14 +97,14 @@
 #                                      plotOutput("impactPlot")),
 #                             tabPanel("Age-specific parameters",
 #                                      br(),
-#                                      p("Incidence, deaths and DALYs per 100,000 persons
+#                                      p("Incidents, deaths and DALYs (numbers or rates per 100,000 persons)
 #                                        for selected country and condition. Error bars show
 #                                        95% confidence intervals. Data is from Global Health
 #                                        Data Exchange (2019)"),
 #                                      br(),
 #                                      radioGroupButtons(
 #                                        inputId = "outputChoice2",
-#                                        choices = c("Numbers", "Rate"),
+#                                        choices = c("Number", "Rate"),
 #                                        selected = "Rate",
 #                                        checkIcon = list(yes = icon("check")),
 #                                      ),
@@ -127,21 +130,24 @@
 #   })
 #
 #
-# currentPlot <- eventReactive(input$submitButton1, {
+# currentPlot <- eventReactive(c(input$submitButton1, input$outputChoice2), {
 #
 #   country <- isolate(input$country)
-#   condition <-isolate(input$condition)
+#   condition <- isolate(input$condition)
+#   metric <- isolate(input$outputChoice2)
 #
-#   incR <- getRateData(country, condition)[[1]]
-#   deaths <- getRateData(country, condition)[[2]]
-#   dalys <- getRateData(country, condition)[[3]]
+#   incR <- getConditionData(country, condition, metric)[[1]]
+#   deaths <- getConditionData(country, condition, metric)[[2]]
+#   dalys <- getConditionData(country, condition, metric)[[3]]
 #
-#   p1 <- makeBarPlot(incR, ylabel = "Incidence",
-#                       colFill = "steelblue")
-#   p2 <- makeBarPlot(deaths, ylabel = "Deaths",
-#                     colFill = "steelblue")
-#   p3 <- makeBarPlot(dalys, ylabel = "DALYs",
-#                     colFill = "steelblue")
+#   if(metric == "Rate")
+#   {
+#     p1 <- makeBarPlot(incR, ylabel = "Incidence", colFill = "steelblue")
+#   }else{
+#     p1 <- makeBarPlot(incR, ylabel = "Number of cases", colFill = "steelblue")
+#   }
+#   p2 <- makeBarPlot(deaths, ylabel = "Deaths", colFill = "steelblue")
+#   p3 <- makeBarPlot(dalys, ylabel = "DALYs", colFill = "steelblue")
 #
 #   ggarrange(p1, p2, p3, ncol = 1, nrow = 3)
 #
@@ -154,27 +160,30 @@
 # impactData <- eventReactive(input$submitButton1, {
 #
 #     country <- isolate(input$country)
-#     condition <-isolate(input$condition)
+#     condition <- isolate(input$condition)
+#     yearV <- isolate(input$yearV)
 #     ageV <- isolate(input$ageV)
 #     duration <- isolate(input$duration)
 #     coverage <- isolate(input$coverage)
 #     efficacy <- isolate(input$efficacy)
 #     overallEff <- (efficacy*coverage)/100 #as a percentage
 #
-#     incR <- getRateData(country, condition)[[1]]
-#     dalys <- getRateData(country, condition)[[3]]
-#     mProb <- getMorData(country)
+#     incR <- getConditionData(country, condition, "Rate")[[1]]
+#     dalys <- getConditionData(country, condition, "Rate")[[3]]
+#     mProb <- getMorData(country, yearV)
 #
 #     impModels <- runModel(conditions = condition, inc = incR, dalys = dalys,
-#                           mortality = mProb, nyears = -1, vaccAge = ageV,
+#                           mortality = mProb, nyears = 85, vaccAge = ageV,
 #                           vaccEff = overallEff, vaccDur = duration)
 #     impModels
 # })
 #
 # impactPlot <- reactive({
 #   impModels <- impactData()
+#   metric <- input$outputChoice1
 #
 #   country <- isolate(input$country)
+#   yearV <- isolate(input$yearV)
 #   ageV <- isolate(input$ageV)
 #   duration <- isolate(input$duration)
 #   condition <-isolate(input$condition)
@@ -182,17 +191,22 @@
 #   efficacy <- isolate(input$efficacy)
 #   overallEff <- (efficacy*coverage)/100 #as a percentage
 #
-#   deaths <- getRateData(country, condition)[[2]]
-#
-#
+#   deaths <- getConditionData(country, condition, "Rate")[[2]]
 #
 #   deaths_mod <-findDeaths(noVaccDeaths = deaths, conditions = condition,
 #                           vaccAge = ageV, vaccEff = overallEff,
 #                           vaccDur = duration)
 #
 #   p <- makePlot(noVacc_mod = impModels[[1]], vacc_mod = impModels[[2]],
-#                 deaths_mod, conditions = condition, vAge = ageV, vDur = duration)
+#                 deaths_mod = deaths_mod, conditions = condition,
+#                 vAge = ageV, vDur = duration, vYear = yearV,
+#                 metric = metric, location = country)
+#
 #   ggarrange(p[[1]], p[[2]], p[[3]], ncol = 1, nrow = 3)
+# })
+#
+# observeEvent(input$outputChoice1, {
+#   impactPlot()
 # })
 #
 # impactTable <- reactive({

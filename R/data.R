@@ -49,12 +49,13 @@
 #'  Data Exchange (GHDx), created and supported by the Institute for Health
 #'  Metrics and Evaluation (IHME)
 #'
-#' @format A data table containing 16104 observations of 6 variables.
+#' @format A data table containing 54120 observations of 7 variables.
 #' \describe{
 #'   \item{measure}{Either Incidence, Deaths or DALYs}
 #'   \item{location}{Region, subregion, country or area}
 #'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 to 84}
-#'   \item{val}{incident rate per 100,000 persons}
+#'   \item{metric}{Rate, Number or Percent}
+#'   \item{val}{measure value}
 #'   \item{upper}{upper bound of 95% confidence interval}
 #'   \item{lower}{lower bound of 95% confidence interval}
 #' }
@@ -68,12 +69,13 @@
 #'  Data Exchange (GHDx), created and supported by the Institute for Health
 #'  Metrics and Evaluation (IHME)
 #'
-#' @format A data table containing 16470 observations of 6 variables.
+#' @format A data table containing 55350 observations of 7 variables.
 #' \describe{
 #'   \item{measure}{Either Incidence, Deaths or DALYs}
 #'   \item{location}{Region, subregion, country or area}
 #'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 to 84}
-#'   \item{val}{incident rate per 100,000 persons}
+#'   \item{metric}{Rate, Number or Percent}
+#'   \item{val}{measure value}
 #'   \item{upper}{upper bound of 95% confidence interval}
 #'   \item{lower}{lower bound of 95% confidence interval}
 #' }
