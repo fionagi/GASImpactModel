@@ -4,12 +4,14 @@
 \alias{getPopData}
 \title{Retrieve location population data}
 \usage{
-getPopData(location, yearV)
+getPopData(location, yearV, pYears)
 }
 \arguments{
 \item{location}{country that matches UN data}
 
 \item{yearV}{year of vaccine introduction}
+
+\item{pYears}{number of years to project from year of vaccine introduction}
 }
 \value{
 data.frame

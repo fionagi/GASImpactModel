@@ -24,100 +24,110 @@
 # ui <- fluidPage(
 #
 #
-#             titlePanel(img(src = "Savac-logo.png", height = 140, width = 400)),
+#        titlePanel(img(src = "Savac-logo.png", height = 140, width = 400)),
 #
-#             sidebarLayout(
+#        sidebarLayout(
 #
-#               sidebarPanel(
+#         sidebarPanel(
 #
-#                 # Input: Selector for choosing dataset ----
-#                 h4("Region settings"),
-#                 selectInput(inputId = "region",
-#                             label = "World region:",
-#                             choices = c("All", unique(data.region$Region))),
+#           # Input: Selector for choosing dataset
+#           h4("Region settings"),
+#           selectInput(inputId = "region",
+#                       label = "World region:",
+#                       choices = c("All", unique(data.region$Region))),
 #
-#                 uiOutput("countryChoice"),
+#           uiOutput("countryChoice"),
 #
-#                 h4("Condition settings"),
-#                 selectInput(inputId = "condition",
-#                             label = "Condition:",
-#                             choices = c("Rheumatic Heart Disease", "Cellulitis")),
+#           h4("Condition settings"),
+#           selectInput(inputId = "condition",
+#                       label = "Condition:",
+#                       choices = c("Rheumatic Heart Disease", "Cellulitis")),
 #
-#                 conditionalPanel(
-#                   condition = "input.condition == 'Cellulitis'",
-#                   sliderInput("propAttr",
-#                               label = "Proportion attributable to GAS:",
-#                               min = 0, max = 1,step = 0.1, value = 0)
-#                 ),
+#           conditionalPanel(condition = "input.condition == 'Cellulitis'",
+#                             sliderInput("propAttr",
+#                             label = "Proportion attributable to GAS:",
+#                             min = 0, max = 1,step = 0.1, value = 0)),
 #
-#                 h4("Vaccine settings"),
-#                 sliderTextInput(inputId = "yearV",
+#           h4("Vaccine settings"),
+#           sliderTextInput(inputId = "yearV",
 #                             label = "Year of vaccine introduction",
-#                             choices = as.character(2020:2050), selected = "2020"
-#                 ),
-#                 sliderInput(inputId = "ageV",
-#                             label = "Age of vaccination",
-#                             min = 0, max = 80, value = 0, step = 1
-#                 ),
-#                 sliderInput(inputId = "duration",
-#                             label = "Durability",
-#                             min = 0, max = 80, value = 0, step = 1
-#                 ),
-#                 sliderInput(inputId = "coverage",
-#                             label = "Coverage %",
-#                             min = 0, max = 100, value = 0, step = 1
-#                 ),
-#                 sliderInput(inputId = "efficacy",
-#                             label = "Efficacy %",
-#                             min = 0, max = 100, value = 0, step = 1
-#                 ),
+#                             choices = as.character(2020:2050), selected = "2020"),
+#           sliderInput(inputId = "ageV",
+#                       label = "Age of vaccination",
+#                       min = 0, max = 80, value = 0, step = 1),
+#           sliderInput(inputId = "duration",
+#                       label = "Durability",
+#                       min = 0, max = 80, value = 0, step = 1),
+#           sliderInput(inputId = "coverage",
+#                       label = "Coverage %",
+#                       min = 0, max = 100, value = 0, step = 1),
+#           sliderInput(inputId = "efficacy",
+#                       label = "Efficacy %",
+#                       min = 0, max = 100, value = 0, step = 1),
 #
-#                 actionButton("submitButton1", "Run analysis", class = "btn-success"),
-#                 downloadButton("saveImpactTable", "Save table"),
-#                 downloadButton("saveImpactPlot", "Save plot")
+#           actionButton("submitButton1", "Run analysis", class = "btn-success"),
+#           downloadButton("saveImpactTable", "Save table"),
+#           downloadButton("saveImpactPlot", "Save plot")
 #
-#               ),
+#       ), #end sidebarPanel
 #
-#               mainPanel(
-#                 tabsetPanel(type = "tabs",
-#                             tabPanel("Impact analysis",
-#                                      br(),
-#                                      p("Comparison of incidents, deaths and DALYs (numbers or rates per 100,000 persons),
-#                                         from age of vaccination to end of durability. Using
-#                                         data from selected country and condition"),
-#                                      br(),
-#                                      radioGroupButtons(
-#                                        inputId = "outputChoice1",
+#       mainPanel(
+#
+#         tabsetPanel(type = "tabs",
+#
+#           tabPanel("Impact analysis",
+#                     br(),
+#                     p("Comparison of incidents, deaths and DALYs (numbers or rates
+#                        per 100,000 persons), from age of vaccination to end of
+#                        durability. Using data from selected country and condition"),
+#                     br(),
+#
+#                     splitLayout(radioGroupButtons(inputId = "impactChoice",
+#                                                   choices = c("Calendar year", "Year of birth", "Year of vaccination"),
+#                                                   selected = "Calendar year",
+#                                                   checkIcon = list(yes = icon("check"))),
+#                                 radioGroupButtons(inputId = "outputChoice1",
+#                                                   choices = c("Number", "Rate"),
+#                                                   selected = "Number",
+#                                                   checkIcon = list(yes = icon("check")))),
+#
+#                     tags$script("$(\"input:radio[name='impactChoice'][value='Calendar year']\").parent().css('background-color', 'lightblue');"),
+#                     tags$script("$(\"input:radio[name='impactChoice'][value='Year of birth']\").parent().css('background-color', 'lightblue');"),
+#                     tags$script("$(\"input:radio[name='impactChoice'][value='Year of vaccination']\").parent().css('background-color', 'lightblue');"),
+#
+#                     tags$script("$(\"input:radio[name='outputChoice1'][value='Numbers']\").parent().css('background-color', 'lightgrey');"),
+#                     tags$script("$(\"input:radio[name='outputChoice1'][value='Rate']\").parent().css('background-color', 'lightgrey');"),
+#
+#                     selectInput(inputId = "plotYears",
+#                                label = "Number of years to plot:",
+#                                choices = c(10, 20, 30)),
+#
+#                     plotOutput("impactPlot")),
+#
+#          tabPanel("Age-specific parameters",
+#                     br(),
+#                     p("Incidents, deaths and DALYs (numbers or rates per 100,000
+#                        persons) for selected country and condition. Error bars show
+#                       95% confidence intervals. Data is from Global Health Data Exchange (2019)"),
+#                     br(),
+#
+#                     radioGroupButtons(inputId = "outputChoice2",
 #                                        choices = c("Number", "Rate"),
-#                                        selected = "Rate",
-#                                        checkIcon = list(yes = icon("check")),
-#                                      ),
-#                                      tags$script("$(\"input:radio[name='outputChoice1'][value='Numbers']\").parent().css('background-color', 'lightgrey');"),
-#                                      tags$script("$(\"input:radio[name='outputChoice1'][value='Rate']\").parent().css('background-color', 'lightgrey');"),
-#                                      plotOutput("impactPlot")),
-#                             tabPanel("Age-specific parameters",
-#                                      br(),
-#                                      p("Incidents, deaths and DALYs (numbers or rates per 100,000 persons)
-#                                        for selected country and condition. Error bars show
-#                                        95% confidence intervals. Data is from Global Health
-#                                        Data Exchange (2019)"),
-#                                      br(),
-#                                      radioGroupButtons(
-#                                        inputId = "outputChoice2",
-#                                        choices = c("Number", "Rate"),
-#                                        selected = "Rate",
-#                                        checkIcon = list(yes = icon("check")),
-#                                      ),
-#                                      tags$script("$(\"input:radio[name='outputChoice2'][value='Numbers']\").parent().css('background-color', 'lightgrey');"),
-#                                      tags$script("$(\"input:radio[name='outputChoice2'][value='Rate']\").parent().css('background-color', 'lightgrey');"),
-#                                      plotOutput("currentPlot")),
-#                             tabPanel("Help"),
-#                             tabPanel("About")
-#                 )
+#                                        selected = "Number",
+#                                        checkIcon = list(yes = icon("check"))),
 #
-#               )
+#                     tags$script("$(\"input:radio[name='outputChoice2'][value='Numbers']\").parent().css('background-color', 'lightgrey');"),
+#                     tags$script("$(\"input:radio[name='outputChoice2'][value='Rate']\").parent().css('background-color', 'lightgrey');"),
 #
-#             ),#end sidebarLayout
+#                     plotOutput("currentPlot")),
+#
+#          tabPanel("Help"),
+#
+#          tabPanel("About"))
+#
+#       ) #end mainPanel
+#
+#   ),#end sidebarLayout
 #
 # )#end fluidPage
 #
@@ -161,6 +171,7 @@
 #
 #     country <- isolate(input$country)
 #     condition <- isolate(input$condition)
+#     impType <- input$impactChoice
 #     yearV <- isolate(input$yearV)
 #     ageV <- isolate(input$ageV)
 #     duration <- isolate(input$duration)
@@ -168,19 +179,26 @@
 #     efficacy <- isolate(input$efficacy)
 #     overallEff <- (efficacy*coverage)/100 #as a percentage
 #
+#     impType <- isolate(input$impactChoice)
+#     plotYears <- isolate(as.numeric(input$plotYears))
+#
 #     incR <- getConditionData(country, condition, "Rate")[[1]]
 #     dalys <- getConditionData(country, condition, "Rate")[[3]]
-#     mProb <- getMorData(country, yearV)
+#     mProb <- getMorData(country, yearV, plotYears, impType)
 #
 #     impModels <- runModel(conditions = condition, inc = incR, dalys = dalys,
 #                           mortality = mProb, nyears = 85, vaccAge = ageV,
-#                           vaccEff = overallEff, vaccDur = duration)
+#                           vaccEff = overallEff, vaccDur = duration,
+#                           impType = impType, pYears = plotYears)
 #     impModels
 # })
 #
 # impactPlot <- reactive({
+#
 #   impModels <- impactData()
 #   metric <- input$outputChoice1
+#   impType <- input$impactChoice
+#   plotYears <- isolate(as.numeric(input$plotYears))
 #
 #   country <- isolate(input$country)
 #   yearV <- isolate(input$yearV)
@@ -200,12 +218,16 @@
 #   p <- makePlot(noVacc_mod = impModels[[1]], vacc_mod = impModels[[2]],
 #                 deaths_mod = deaths_mod, conditions = condition,
 #                 vAge = ageV, vDur = duration, vYear = yearV,
-#                 metric = metric, location = country)
+#                 metric = metric, location = country, impType, pYears = plotYears)
 #
 #   ggarrange(p[[1]], p[[2]], p[[3]], ncol = 1, nrow = 3)
 # })
 #
 # observeEvent(input$outputChoice1, {
+#   impactPlot()
+# })
+#
+# observeEvent(input$impactChoice, {
 #   impactPlot()
 # })
 #

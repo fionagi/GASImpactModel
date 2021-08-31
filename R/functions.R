@@ -74,26 +74,28 @@ missingData <- function(dataF)
 #'
 #' @param location country that matches UN data
 #' @param yearV year of vaccine introduction
+#' @param pYears number of years to project from year of vaccine introduction
 #'
 #' @return data.frame
 #' @export
-getPopData <- function(location, yearV)
+getPopData <- function(location, yearV, pYears)
 {
-  pop <- matrix(NA, nrow = 85, ncol = 2 )
-  colnames(pop) <- c("Age", "Pop")
+  pop <- matrix(NA, nrow = 85, ncol = 2+pYears)
+  colnames(pop) <- c("Age", yearV:(yearV+pYears))
   pop[,1] <- 0:84
 
-  year <- as.numeric(yearV)
-  for(i in 1:85)
-  {
-    select <- data.popbyage.pred$Country == location &
-                data.popbyage.pred$Year == year
-    pop[i,2] <- as.numeric(data.popbyage.pred[select, as.character(i-1)])
-                #pop in thousands
-    year = year +1
-    if(year > 2100) year <- 2100 #Use prob of dying from last year of data
-                                 #for all years > 2100
-   }
+  # #following a single cohort
+  # year <- as.numeric(yearV)
+  # for(i in 1:85)
+  # {
+  #   select <- data.popbyage.pred$Country == location &
+  #               data.popbyage.pred$Year == year
+  #   pop[i,2] <- as.numeric(data.popbyage.pred[select, as.character(i-1)])
+  #               #pop in thousands
+  #   year = year +1
+  #   if(year > 2100) year <- 2100 #Use prob of dying from last year of data
+  #                                #for all years > 2100
+  #  }
 
   return(pop)
 }
@@ -104,45 +106,75 @@ getPopData <- function(location, yearV)
 #' a period of 85 years, retrieving probability of death for each year of life
 #' @param location country that matches UN data
 #' @param yearV year of vaccine introduction
+#' @param pYears number of years to project from year of vaccine introduction
+#' @param impType the type of impact analysis, Calendar year, Year of birth or Year of Vaccination
 #'
 #' @return data.frame
 #' @export
-getMorData <- function(location, yearV)
+getMorData <- function(location, yearV, pYears, impType)
 {
-  mor <- matrix(NA, nrow = 85, ncol = 2 )
-  colnames(mor) <- c("Age", "Prob")
-  mor[,1] <- 0:84
-
   tIndex <- rep(1, age_groups$Years[1])
   for(i in 2:nrow(age_groups)) tIndex <- c(tIndex, rep(i, age_groups$Years[i]))
 
+  if(impType == "Calendar year")
+  {
+    tmpMor <- matrix(NA, nrow = pYears+1, ncol = 85)
+    colnames(tmpMor) <- 0:84
+    rownames(tmpMor) <- as.numeric(yearV):(as.numeric(yearV)+pYears)
+  }else{
+    if(impType == "Year of birth")
+    {
+      tmpMor <- matrix(NA, nrow = (pYears+1)+85, ncol = 85)
+      colnames(tmpMor) <- 0:84
+      rownames(tmpMor) <- as.numeric(yearV):(as.numeric(yearV)+pYears+85)
+    }
+
+  }
+
+
   year <- as.numeric(yearV)
-  for(i in 1:85)
+  for(i in 1:nrow(tmpMor))
   {
     if(year < 2050)
     {
+
       index <- trunc(((year-2020)/5)+1)
       period <- unique(data.mortality.pred2050$Period)[index]
-      age <- unique(data.mortality.pred2050$`Age (x)`)[tIndex[i]]
       select <- data.mortality.pred2050$Location == location &
-                    data.mortality.pred2050$Period == period &
-                    data.mortality.pred2050$`Age (x)` == age
-      mor[i,2] <- as.numeric(data.mortality.pred2050[select, "Probability of dying q(x,n)"])
+                    data.mortality.pred2050$Period == period
+      tmpMor[i,] <- as.numeric(data.mortality.pred2050[select, "Probability of dying q(x,n)"])[tIndex]
+
     }else{
 
       index <- trunc(((year-2050)/5)+1)
       period <- unique(data.mortality.pred2100$Period)[index]
-      age <- unique(data.mortality.pred2100$`Age (x)`)[tIndex[i]]
       select <- data.mortality.pred2100$Location == location &
-                  data.mortality.pred2100$Period == period &
-                  data.mortality.pred2100$`Age (x)` == age
-      mor[i,2] <- as.numeric(data.mortality.pred2100[select, "Probability of dying q(x,n)"])
+                  data.mortality.pred2100$Period == period
+      tmpMor[i,] <- as.numeric(data.mortality.pred2100[select, "Probability of dying q(x,n)"])[tIndex]
+
     }
 
     year = year +1
     if(year > 2099) year <- 2099 #Use prob of dying from last year of data
                                  #for all years > 2099
   }
+
+  if(impType == "Calendar year") return(tmpMor)
+
+  if(impType == "Year of birth")
+  {
+    mor <- matrix(NA, nrow = pYears+1, ncol = 85)
+    colnames(mor) <- 0:84
+    rownames(mor) <- as.numeric(yearV):(as.numeric(yearV)+pYears)
+
+    for(i in 1:(pYears+1))
+    {
+      mor[i,] <- diag(tmpMor)
+      tmpMor <- tmpMor[-1,]
+    }
+  }
+
+#Add in "Year of vaccination"
 
   return(mor)
 }
@@ -363,17 +395,21 @@ probUncondition <- function(Pr)
 #' @param V_Eff vaccine effectiveness, reduce prob. by this proportion
 #' @param V_Age age when vaccine is administered
 #' @param V_Dur length of time that vaccine is effective for
+#' @param impType type of impact analysis: Calendar year, Year of birth, Year of vaccination
 #'
 #' @return matrix
 #' @export
-transProb <- function(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur)
+transProb <- function(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur, impType)
 {
   trProb <- prM
 
   if(V_Eff != 0) #if vaccinating
   {
-    vTime <- (1+V_Age):(V_Age+V_Dur) #from time of vacc to end of duration of effectiveness
-    trProb[vTime,] <- (1-V_Eff)*trProb[vTime,] #reduce prob. of incidents due to vaccine
+    if(impType == "Year of birth")
+    {
+      vTime <- (1+V_Age):(V_Age+V_Dur) #from time of vacc to end of duration of effectiveness
+      trProb[vTime,] <- (1-V_Eff)*trProb[vTime,] #reduce prob. of incidents due to vaccine
+    }
   }
 
   trProb <- cbind(trProb, as.numeric(lifeTable[1:(maxAge+1)]))
@@ -569,16 +605,19 @@ findDeaths <- function(noVaccDeaths, conditions, vaccAge =0, vaccEff, vaccDur)
 #' @param mortality all-cause mortality rate at age
 #' @param initPop initial population size. Default 100,000
 #' @param dRate discount rate as a percentage. Default 0%
-#' @param nyears no. of years to project
+#' @param nyears maximum age of cohort
 #' @param vaccAge age of vaccination. Default 0
 #' @param vaccEff effectiveness of vaccine, as a percentage
 #' @param vaccDur no. of years that vaccine is effective
+#' @param impType type of impact analysis: Calendar year, Year of birth, Year of vaccination
+#' @param pYears no. of years to project
 #'
 #' @return list
 #' @export
 runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
                     dalyRate =100000, mortality, initPop = 100000, dRate = 0,
-                    nyears = 85, vaccAge = 0, vaccEff = 100, vaccDur = 10)
+                    nyears = 85, vaccAge = 0, vaccEff = 100, vaccDur = 10,
+                    impType, pYears = 10)
 {
   inc <- as.matrix(inc[match(age_groups$Label, inc$age), "val"])
   rownames(inc) <- age_groups$Label
@@ -630,13 +669,13 @@ runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
   #create matrix with mortality for all ages
   #check if mortality has same no. of rows as maxAge+1, else assume
   #grouped in same way as other data
-  if(nrow(mortality)!= maxAge+1)
-  {
-    mortality <- mortality[match(age_groups$Label, mortality$Age), ]
-    mortality <- mortality[tIndex,]
-    mortality[,1] <- 0:maxAge
-    mortality <- mortality[, c("Age", "Value")]
-  }
+ # if(nrow(mortality)!= maxAge+1)
+#  {
+ #   mortality <- mortality[match(age_groups$Label, mortality$Age), ]
+#    mortality <- mortality[tIndex,]
+#    mortality[,1] <- 0:maxAge
+#    mortality <- mortality[, c("Age", "Value")]
+#  }
 
 
   #Create matrix with all transition probabilities for all ages
@@ -645,20 +684,61 @@ runModel<- function(conditions, inc, rate = 100000, costs = 1, dalys = 1,
   rownames(prob) <- 0:maxAge
   allStates <- c("Well", conditions, "Deceased")
 
-  #no vaccine
-  #transProb defines the Well and Deceased states, removes probability conditioning
-  #Col names of resulting matrix will have all state names
-  prob0 <- transProb(prob, mortality[,2], maxAge, 0)
-  #vaccine
-  probVacc <- transProb(prob, mortality[,2], maxAge, vaccEff, vaccAge, vaccDur)
+  # #no vaccine
+  # #transProb defines the Well and Deceased states, removes probability conditioning
+  # #Col names of resulting matrix will have all state names
+  # prob0 <- transProb(prob, mortality[,2], maxAge, 0)
+  # #vaccine
+  # probVacc <- transProb(prob, mortality[,2], maxAge, vaccEff, vaccAge, vaccDur)
+  #
+  # #run models
+  # #no vaccine
+  # noVacc_mod <- heemodModel(prob0, dalys, dRate, cost, initPop, 0, nyears)
+  # #vaccine  (run from age 0 no matter when vaccinating)
+  # vacc_mod <- heemodModel(probVacc, dalys, dRate, cost, initPop, 0, nyears)
 
-  #run models
-  #no vaccine
-  noVacc_mod <- heemodModel(prob0, dalys, dRate, cost, initPop, 0, nyears)
-  #vaccine  (run from age 0 no matter when vaccinating)
-  vacc_mod <- heemodModel(probVacc, dalys, dRate, cost, initPop, 0, nyears)
 
-  return(list(noVacc_mod, vacc_mod))
+  #Create matrix with all transition probabilities for all ages
+  #base transition prob, no vaccination
+  prob <- as.matrix(IncidenceProb[tIndex,])
+  rownames(prob) <- 0:maxAge
+  allStates <- c("Well", conditions, "Deceased")
+
+  noVacc_matrix <- matrix(NA, nrow = nyears, ncol = (pYears+1)*length(conditions))
+  vacc_matrix <- matrix(NA, nrow = nyears, ncol = (pYears+1)*length(conditions))
+
+
+
+  if(impType == "Year of birth")
+  {
+    for(i in 1:(pYears+1))
+    {
+      prob0 <- transProb(prob, mortality[i,], maxAge, 0)
+      probVacc <- transProb(prob, mortality[i,], maxAge, vaccEff,
+                            vaccAge, vaccDur, impType)
+
+      noVacc_mod <- heemodModel(prob0, dalys, dRate, cost, initPop, 0, nyears)
+      vacc_mod <- heemodModel(probVacc, dalys, dRate, cost, initPop, 0, nyears)
+
+      allStates <- c("Well", paste(conditions, i), "Deceased")
+
+      outputCols <- grep("dots", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+      costCols <- grep("cost", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
+      numModelStates <- length(intersect(costCols, outputCols))
+      nonZeroCols <- c(1:(length(conditions)+1), numModelStates)
+
+     #incident counts per age
+     noVacc_counts <- noVacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
+     colnames(noVacc_counts) <- allStates
+     vacc_counts <- vacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
+     colnames(vacc_counts) <- allStates
+
+     noVacc_matrix[, ((i-1)*length(conditions)+1):(i*length(conditions))] <- as.matrix(noVacc_counts[, paste(conditions, i)])
+     vacc_matrix[, ((i-1)*length(conditions)+1):(i*length(conditions))] <- as.matrix(vacc_counts[, paste(conditions, i)])
+    }
+  }
+
+  return(list(noVacc_matrix, vacc_matrix))
 }
 
 #' Create table of comparison statistics
@@ -746,90 +826,66 @@ makeTable <- function(noVacc_mod, vacc_mod, conditions, initPop = 100000,
 #' @param vYear year of vaccine introduction
 #' @param metric Rate or Number
 #' @param location  country, area or region
+#' @param impType type of impact analysis: Calendar year, Year of birth, Year of vaccination
+#' @param pYears no. of years to project
 #'
 #' @return ggplot
 #' @export
 makePlot <- function(noVacc_mod, vacc_mod, deaths_mod, conditions,
-                      vAge, vDur, vYear, metric, location)
+                      vAge, vDur, vYear, metric, location, impType, pYears)
 {
-  #Currently written for comparison between vacc and no vacc scenario of only
-  #one condition
+#browser()
+  rownames(noVacc_mod) <- 0:84
+  colnames(noVacc_mod) <- vYear:(vYear+pYears)
 
-  allStates <- c("Well", conditions, "Deceased")
+  totalNoVacc <- apply(noVacc_mod, 2, sum) #total no. incidents per 100k persons
 
-  outputCols <- grep("dots", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
-  costCols <- grep("cost", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
-  dalyCols <- grep("utility", colnames(data.frame(noVacc_mod$eval_strategy_list$standard$states)))
-  numModelStates <- length(intersect(costCols, outputCols))
-  nonZeroCols <- c(1:(length(conditions)+1), numModelStates)
+  rownames(vacc_mod) <- 0:84
+  colnames(vacc_mod) <- vYear:(vYear+pYears)
 
-  if(metric == "Number")pop <- getPopData(location, vYear)
+  totalVacc <- apply(vacc_mod, 2, sum) # total no. of incidents per 100k persons
 
-  #incident counts per age
-  noVacc_counts <- noVacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
-  colnames(noVacc_counts) <- allStates
-  vacc_counts <- vacc_mod$eval_strategy_list$standard$counts[,nonZeroCols]
-  colnames(vacc_counts) <- allStates
+  meltNoVacc <- melt(noVacc_mod)
+  #meltNoVacc <- cbind(meltNoVacc, rep(0:84, pYears+1))
+  colnames(meltNoVacc) <- c("Age", "Year", "NumCases")
 
-  #costs per age (will be different to what user has given if discounting,
-  #               but same for noVacc to vacc)
-  costs_per_age <- data.frame(noVacc_mod$eval_strategy_list$standard$states)[,intersect(costCols, outputCols)][,nonZeroCols]
+  meltVacc <- melt(vacc_mod)
+  #meltVacc <- cbind(meltVacc, rep(0:84, pYears+1))
+  colnames(meltVacc) <- c("Age", "Year", "NumCases")
 
-  #dalys per age (as above)
-  dalys_per_age <- data.frame(noVacc_mod$eval_strategy_list$standard$states)[,intersect(dalyCols, outputCols)][,nonZeroCols]
-  colnames(dalys_per_age) <- allStates
-
-  #noVacc dalys vs. vacc dalys
-  noVacc_dalys<-(noVacc_counts*dalys_per_age)[,conditions]
-  vacc_dalys<-(vacc_counts*dalys_per_age)[,conditions]
-  dalys <- cbind(noVacc_dalys, vacc_dalys)
-  if(metric == "Number") dalys <- (dalys/100000)*pop[,2]*1000
-  colnames(dalys) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
-  dalys <- dalys[(vAge+1):(vAge+vDur), ]
-
-  meltDalys <- reshape2::melt(as.matrix(dalys))
-  meltDalys[,1] <- rep(vAge:(vAge+vDur-1),2)
-  colnames(meltDalys) <- c("Age", "VaccStatus", "DALYs")
-
-  counts <- cbind(noVacc_counts[, conditions], vacc_counts[, conditions])
-  if(metric == "Number") counts <- (counts/100000)*pop[,2]*1000
-  colnames(counts) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
-  counts <- counts[(vAge+1):(vAge+vDur), ]
-
-  meltCounts <- reshape2::melt(as.matrix(counts))
-  meltCounts[,1] <- rep(vAge:(vAge+vDur-1),2)
-  colnames(meltCounts) <- c("Age", "VaccStatus", "NumCases")
-
-  if(metric == "Number") deaths_mod <- (deaths_mod/100000)*pop[,2]*1000
-  deaths <- deaths_mod[(vAge+1):(vAge+vDur), ]
-  colnames(deaths) <- c(paste(conditions, "No Vacc"), paste(conditions, "Vacc"))
-
-  meltDeaths <- reshape2::melt(as.matrix(deaths))
-  meltDeaths[,1] <- rep(vAge:(vAge+vDur-1),2)
-  colnames(meltDeaths) <- c("Age", "VaccStatus", "Deaths")
-
-
-  pDalys <- ggplot2::ggplot(data=meltDalys, ggplot2::aes(x=factor(Age), y=DALYs, fill=VaccStatus )) +
-                              ggplot2::geom_bar(position="stack", stat="identity")+
-                              ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-                              ggplot2::ylab("DALYs") +
-                              ggplot2::xlab("Age")
+  ymax <- max(totalNoVacc)*1.01
+  ylabel <- "Incidence"
+  #if(metric == "Number") ylabel <- "Number of cases"
+  p_noVacc <- ggplot2::ggplot(data=meltNoVacc, ggplot2::aes(x=factor(Year), y=NumCases, fill=Age )) +
+    ggplot2::geom_bar(position="stack", stat="identity")+
+    ggplot2::ylab(ylabel)+
+    ggplot2::xlab("Year of birth")+
+    scale_fill_gradientn(colours = rainbow(18))+
+    ylim(0, ymax)
 
   ylabel <- "Incidence"
-  if(metric == "Number") ylabel <- "Number of cases"
-  pCount <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=factor(Age), y=NumCases, fill=VaccStatus )) +
-                              ggplot2::geom_bar(position="stack", stat="identity")+
-                              ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-                              ggplot2::ylab(ylabel)+
-                              ggplot2::xlab("Age")
-
-  pDeaths <- ggplot2::ggplot(data=meltDeaths, ggplot2::aes(x=factor(Age), y=Deaths, fill=VaccStatus )) +
+  #if(metric == "Number") ylabel <- "Number of cases"
+  p_vacc <- ggplot2::ggplot(data=meltVacc, ggplot2::aes(x=factor(Year), y=NumCases, fill=Age )) +
     ggplot2::geom_bar(position="stack", stat="identity")+
-    ggplot2::scale_fill_discrete(name = "", labels = c("No vaccine", "Vaccine"))+
-    ggplot2::ylab("Deaths")+
-    ggplot2::xlab("Age")
+    ggplot2::ylab(ylabel)+
+    ggplot2::xlab("Year of birth")+
+    scale_fill_gradientn(colours = rainbow(18))+
+    ylim(0, ymax)
 
-  return(list(pCount, pDeaths, pDalys))
+  counts <- cbind(totalNoVacc-totalVacc, totalVacc)
+  #if(metric == "Number") counts <- (counts/100000)*pop[,2]*1000
+  colnames(counts) <- c("No Vacc", "Vacc")
+
+  meltCounts <- reshape2::melt(as.matrix(counts))
+  colnames(meltCounts) <- c("Year", "VaccStatus", "NumCases")
+
+  p_avert <- ggplot2::ggplot(data=meltCounts, ggplot2::aes(x=factor(Year), y=NumCases, fill=VaccStatus )) +
+    ggplot2::geom_bar(position="stack", stat="identity")+
+    ggplot2::scale_fill_discrete(name = "", labels = c("Averted", "Retained"))+
+    ggplot2::ylab(ylabel)+
+    ggplot2::xlab("Year of birth")
+
+  return(list(p_noVacc, p_vacc, p_avert))
 }
 
 #' Create bar plot (with uncertainty values) of current (2019) data

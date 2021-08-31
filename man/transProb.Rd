@@ -4,7 +4,7 @@
 \alias{transProb}
 \title{Find transition probabilities for Markov model}
 \usage{
-transProb(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur)
+transProb(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur, impType)
 }
 \arguments{
 \item{prM}{probability of disease without vaccine}
@@ -18,6 +18,8 @@ transProb(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur)
 \item{V_Age}{age when vaccine is administered}
 
 \item{V_Dur}{length of time that vaccine is effective for}
+
+\item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
 }
 \value{
 matrix

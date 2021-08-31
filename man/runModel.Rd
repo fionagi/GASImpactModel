@@ -17,7 +17,9 @@ runModel(
   nyears = 85,
   vaccAge = 0,
   vaccEff = 100,
-  vaccDur = 10
+  vaccDur = 10,
+  impType,
+  pYears = 10
 )
 }
 \arguments{
@@ -43,13 +45,17 @@ If set to 1, all age groups and conditions set to DALYs 1}
 
 \item{dRate}{discount rate as a percentage. Default 0\%}
 
-\item{nyears}{no. of years to project}
+\item{nyears}{maximum age of cohort}
 
 \item{vaccAge}{age of vaccination. Default 0}
 
 \item{vaccEff}{effectiveness of vaccine, as a percentage}
 
 \item{vaccDur}{no. of years that vaccine is effective}
+
+\item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
+
+\item{pYears}{no. of years to project}
 }
 \value{
 list

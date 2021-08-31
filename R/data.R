@@ -82,22 +82,22 @@
 #' @source \url{http://ghdx.healthdata.org/gbd-results-tool}
 "data.cellulitis2019"
 
-#' Probability of mortality - 2019
+#' Probability of mortality - 1950 - 2020
 #'
-#' Probability of dying between ages x and x+n (2019). Data from the Global
-#' Health Observatory, WHO
+#' Probability of dying between ages x and x+n by country and period.
+#' Data set extracted from United Nations data "Abridged Life Table - Both Sexes"
+#' obtained from source.
 #'
-#' @format A data table containing 6954 observations of 5 variables.
+#' @format A data table containing 73794 observations of 5 variables.
 #' \describe{
-#'   \item{Region}{Europe, Western Pacific, Americas, Eastern Mediterranean,
-#'                 Africa and South-East Asia}
-#'   \item{Location}{country or area}
-#'   \item{Sex}{female, male}
-#'   \item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-#'   \item{Value}{probability of mortality}
+#'   \item{Location}{Region, subregion, country or area}
+#'   \item{Period}{Year range}
+#'   \item{Age (x)}{Start of age range}
+#'   \item{Age interval (n)}{age interval length}
+#'   \item{Probability of dying q(x,n)}{probability of all-cause mortality between ages x and x+n}
 #' }
-#' @source \url{https://www.who.int/data/gho/data/indicators/indicator-details/GHO/gho-ghe-life-tables-by-country}
-"data.mortality2019"
+#' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
+"data.mortality.1950_to_2020"
 
 #' Probability of mortality - 2020 - 2050
 #'
@@ -108,10 +108,10 @@
 #' @format A data table containing 31626 observations of 5 variables.
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
-#'   \item{Period}{country or area}
-#'   \item{Sex}{female, male}
-#'   \item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-#'   \item{Value}{probability of mortality}
+#'   \item{Period}{Year range}
+#'   \item{Age (x)}{Start of age range}
+#'   \item{Age interval (n)}{age interval length}
+#'   \item{Probability of dying q(x,n)}{probability of all-cause mortality between ages x and x+n}
 #' }
 #' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
 "data.mortality.pred2050"
@@ -125,10 +125,10 @@
 #' @format A data table containing 31626 observations of 5 variables.
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
-#'   \item{Period}{country or area}
-#'   \item{Sex}{female, male}
-#'   \item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-#'   \item{Value}{probability of mortality}
+#'   \item{Period}{Year range}
+#'   \item{Age (x)}{Start of age range}
+#'   \item{Age interval (n)}{age interval length}
+#'   \item{Probability of dying q(x,n)}{probability of all-cause mortality between ages x and x+n}
 #' }
 #' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
 "data.mortality.pred2100"

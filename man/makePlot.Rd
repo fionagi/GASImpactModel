@@ -13,7 +13,9 @@ makePlot(
   vDur,
   vYear,
   metric,
-  location
+  location,
+  impType,
+  pYears
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ makePlot(
 \item{metric}{Rate or Number}
 
 \item{location}{country, area or region}
+
+\item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
+
+\item{pYears}{no. of years to project}
 }
 \value{
 ggplot
