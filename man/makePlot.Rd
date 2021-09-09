@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{makePlot}
 \alias{makePlot}
-\title{Create line plot comparison between vaccine and no vaccine scenarios}
+\title{Create line plot comparison between vaccine and no vaccine scenarios
+NOTE: Currently makes only impact incidence plots}
 \usage{
 makePlot(
   noVacc_mod,
@@ -46,4 +47,5 @@ ggplot
 }
 \description{
 Create line plot comparison between vaccine and no vaccine scenarios
+NOTE: Currently makes only impact incidence plots
 }

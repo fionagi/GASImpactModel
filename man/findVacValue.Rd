@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{findVacValue}
 \alias{findVacValue}
-\title{Find value of vaccine}
+\title{Find value of vaccine
+NOTE: Not currently used in app}
 \usage{
 findVacValue(c0, cV, e0, eV, popS, ICER)
 }
@@ -24,4 +25,5 @@ numeric
 }
 \description{
 Find value of vaccine
+NOTE: Not currently used in app
 }

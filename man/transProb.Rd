@@ -4,10 +4,10 @@
 \alias{transProb}
 \title{Find transition probabilities for Markov model}
 \usage{
-transProb(prM, lifeTable, maxAge, V_Eff, V_Age, V_Dur, impType)
+transProb(prD, lifeTable, maxAge, V_Eff, V_Age, V_Dur, impType)
 }
 \arguments{
-\item{prM}{probability of disease without vaccine}
+\item{prD}{probability of disease without vaccine}
 
 \item{lifeTable}{all-cause mortality}
 

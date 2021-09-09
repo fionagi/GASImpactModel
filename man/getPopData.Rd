@@ -2,9 +2,9 @@
 % Please edit documentation in R/functions.R
 \name{getPopData}
 \alias{getPopData}
-\title{Retrieve location population data}
+\title{Find population at age for a location and year range}
 \usage{
-getPopData(location, yearV, pYears)
+getPopData(location, yearV, pYears, maxAge)
 }
 \arguments{
 \item{location}{country that matches UN data}
@@ -12,11 +12,12 @@ getPopData(location, yearV, pYears)
 \item{yearV}{year of vaccine introduction}
 
 \item{pYears}{number of years to project from year of vaccine introduction}
+
+\item{maxAge}{maximum age of population}
 }
 \value{
 data.frame
 }
 \description{
-Follow a cohort from age 0 in year of vaccine introduction for
-a period of 85 years, retrieving population numbers for each year of life
+Find population at age for a location and year range
 }

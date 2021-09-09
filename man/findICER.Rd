@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{findICER}
 \alias{findICER}
-\title{Find incremental cost-effectiveness ratio (ICER)}
+\title{Find incremental cost-effectiveness ratio (ICER)
+NOTE: Not currently used in app}
 \usage{
 findICER(c0, cV, e0, eV, popS, VV)
 }
@@ -24,4 +25,5 @@ numeric
 }
 \description{
 Find incremental cost-effectiveness ratio (ICER)
+NOTE: Not currently used in app
 }

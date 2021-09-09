@@ -77,9 +77,9 @@
 #
 #           tabPanel("Impact analysis",
 #                     br(),
-#                     p("Comparison of incidents, deaths and DALYs (numbers or rates
-#                        per 100,000 persons), from age of vaccination to end of
-#                        durability. Using data from selected country and condition"),
+#                     p("Comparisons of number of cases or incidence rates
+#                        per 100,000 persons for selected vaccination scenario.
+#                       Using data from selected country and condition."),
 #                     br(),
 #
 #                     splitLayout(radioGroupButtons(inputId = "impactChoice",
@@ -172,6 +172,7 @@
 #     country <- isolate(input$country)
 #     condition <- isolate(input$condition)
 #     impType <- input$impactChoice
+#     metric <- input$outputChoice1
 #     yearV <- isolate(input$yearV)
 #     ageV <- isolate(input$ageV)
 #     duration <- isolate(input$duration)
@@ -184,12 +185,22 @@
 #
 #     incR <- getConditionData(country, condition, "Rate")[[1]]
 #     dalys <- getConditionData(country, condition, "Rate")[[3]]
-#     mProb <- getMorData(country, yearV, plotYears, impType)
+#     mProb <- getMorData(location = country, yearV = yearV, pYears = plotYears,
+#                         impType = impType, ageV = ageV)
 #
-#     impModels <- runModel(conditions = condition, inc = incR, dalys = dalys,
-#                           mortality = mProb, nyears = 85, vaccAge = ageV,
-#                           vaccEff = overallEff, vaccDur = duration,
-#                           impType = impType, pYears = plotYears)
+#     if(metric == "Number")
+#     {
+#       initPop <- getInitPop(location = country, yearV = yearV,
+#                             pYears = plotYears, ageV = ageV, impType = impType)
+#     }else{
+#       initPop <- 1 #dummy value
+#     }
+#
+#     impModels <- runModel(location = country, conditions = condition, inc = incR,
+#                             dalys = dalys, mortality = mProb, nyears = 85,
+#                             yearV = yearV, vaccAge = ageV, vaccEff = overallEff,
+#                             vaccDur = duration, impType = impType, pYears = plotYears,
+#                             metric = metric, initPop = initPop)
 #     impModels
 # })
 #

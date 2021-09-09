@@ -2,9 +2,13 @@
 % Please edit documentation in R/functions.R
 \name{runModel}
 \alias{runModel}
-\title{Run Markov models for vaccine impact scenario}
+\title{Run Markov models for vaccine impact scenario
+NOTE: Cost, DALYS and discounting not currently used. Change nyears to maxAge?
+Only written for one condition though some programming started to allow for
+multiple conditions to be modeled at the same time}
 \usage{
 runModel(
+  location,
   conditions,
   inc,
   rate = 1e+05,
@@ -12,17 +16,21 @@ runModel(
   dalys = 1,
   dalyRate = 1e+05,
   mortality,
-  initPop = 1e+05,
   dRate = 0,
   nyears = 85,
+  yearV,
   vaccAge = 0,
   vaccEff = 100,
   vaccDur = 10,
   impType,
-  pYears = 10
+  pYears = 10,
+  metric,
+  initPop
 )
 }
 \arguments{
+\item{location}{country that matches UN data}
+
 \item{conditions}{condition names}
 
 \item{inc}{incidence rates for each condition}
@@ -41,11 +49,11 @@ If set to 1, all age groups and conditions set to DALYs 1}
 
 \item{mortality}{all-cause mortality rate at age}
 
-\item{initPop}{initial population size. Default 100,000}
-
 \item{dRate}{discount rate as a percentage. Default 0\%}
 
 \item{nyears}{maximum age of cohort}
+
+\item{yearV}{year of vaccine introduction}
 
 \item{vaccAge}{age of vaccination. Default 0}
 
@@ -56,6 +64,10 @@ If set to 1, all age groups and conditions set to DALYs 1}
 \item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
 
 \item{pYears}{no. of years to project}
+
+\item{metric}{Rate or Number}
+
+\item{initPop}{used for modeling if metric is Number}
 }
 \value{
 list

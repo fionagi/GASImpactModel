@@ -4,7 +4,7 @@
 \alias{getMorData}
 \title{Retrieve probability of all-cause mortality}
 \usage{
-getMorData(location, yearV, pYears, impType)
+getMorData(location, yearV, pYears, ageV = 0, impType)
 }
 \arguments{
 \item{location}{country that matches UN data}
@@ -12,6 +12,8 @@ getMorData(location, yearV, pYears, impType)
 \item{yearV}{year of vaccine introduction}
 
 \item{pYears}{number of years to project from year of vaccine introduction}
+
+\item{ageV}{vaccination age}
 
 \item{impType}{the type of impact analysis, Calendar year, Year of birth or Year of Vaccination}
 }

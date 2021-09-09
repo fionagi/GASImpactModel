@@ -20,6 +20,7 @@ Imports:
     dplyr,
     FinCal,
     ggplot2,
+    grDevices,
     heemod,
     reshape2,
     stats,

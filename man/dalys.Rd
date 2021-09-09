@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{dalys}
 \alias{dalys}
-\title{Find DALYs with 95\% uncertainty intervals}
+\title{Find DALYs with 95\% uncertainty intervals
+NOTE: Not currently used in app}
 \usage{
 dalys(
   incR,
@@ -46,4 +47,5 @@ matrix
 }
 \description{
 Find DALYs with 95\% uncertainty intervals
+NOTE: Not currently used in app
 }

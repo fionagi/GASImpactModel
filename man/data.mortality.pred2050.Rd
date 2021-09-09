@@ -8,10 +8,10 @@
 A data table containing 31626 observations of 5 variables.
 \describe{
 \item{Location}{Region, subregion, country or area}
-\item{Period}{country or area}
-\item{Sex}{female, male}
-\item{Age group}{age groups, <1, 1 to 4, then 5-year age groups until 85 plus}
-\item{Value}{probability of mortality}
+\item{Period}{Year range}
+\item{Age (x)}{Start of age range}
+\item{Age interval (n)}{age interval length}
+\item{Probability of dying q(x,n)}{probability of all-cause mortality between ages x and x+n}
 }
 }
 \source{

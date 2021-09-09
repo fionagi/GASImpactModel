@@ -11,20 +11,20 @@
 #' @source \url{https://population.un.org/wpp/Download/Files/4_Metadata/WPP2019_F01_LOCATIONS.}
 "data.region"
 
-#' Population by age - 2020
+#' Population by age - 1950 - 2020
 #'
-#' Total population (both sexes combined) for 2020 by 1-year age
+#' Total population (both sexes combined) for 1950 - 2020 by 1-year age
 #' groups (in thousands).
 #' Data set extracted from United Nations data "Annual Population by Age - Both Sexes"
 #' obtained from source.
 #'
-#' @format A data table containing 251 observations of 102 variables.
+#' @format A data table containing 17821 observations of 103 variables.
 #' \describe{
 #'   \item{Country}{Region, subregion, country or area}
 #'   \item{0, 1, ..., 100}{population in 1-year age groups}
 #' }
 #' @source \url{https://population.un.org/wpp/Download/Standard/Interpolated/}
-"data.popbyage2020"
+"data.popbyage.1950_to_2020"
 
 #' Population by age - 2020 - 2100
 #'

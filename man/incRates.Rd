@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{incRates}
 \alias{incRates}
-\title{Find incidence rates with 95\% uncertainty intervals}
+\title{Find incidence rates with 95\% uncertainty intervals
+NOTE: Not currently used in app}
 \usage{
 incRates(careEp, pop, propAttr, rate = 1e+05, years = 1, grps = 1)
 }
@@ -24,4 +25,5 @@ matrix
 }
 \description{
 Find incidence rates with 95\% uncertainty intervals
+NOTE: Not currently used in app
 }

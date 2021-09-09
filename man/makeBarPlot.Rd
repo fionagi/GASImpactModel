@@ -8,7 +8,7 @@ makeBarPlot(plot_data, ylabel, colFill = "steelblue")
 }
 \arguments{
 \item{plot_data}{data frame with age group, val
-and upper and lower 95\% CI of one of Incidencem DALYs or deaths}
+and upper and lower 95\% CI of one of Incidence, DALYs or deaths}
 
 \item{ylabel}{y-axis label}
 

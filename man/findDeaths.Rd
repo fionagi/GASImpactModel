@@ -2,7 +2,8 @@
 % Please edit documentation in R/functions.R
 \name{findDeaths}
 \alias{findDeaths}
-\title{Find number of deaths under simple scaling vaccine scenario}
+\title{Find number of deaths under simple scaling vaccine scenario
+NOTE: Not currently used in app}
 \usage{
 findDeaths(noVaccDeaths, conditions, vaccAge = 0, vaccEff, vaccDur)
 }
@@ -22,4 +23,5 @@ numeric
 }
 \description{
 Find number of deaths under simple scaling vaccine scenario
+NOTE: Not currently used in app
 }
