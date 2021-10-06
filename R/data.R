@@ -133,4 +133,35 @@
 #' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
 "data.mortality.pred2100"
 
+#' Life expectancy - 1950 - 2020
+#'
+#' Life expectancy at exact age for both sexes combined by region and period.
+#' Data set extracted from United Nations data "Life Expectancy at exact age x (ex) - Both Sexes"
+#' obtained from source,
+#'
+#' @format A data table containing 3514 observations of 24 variables
+#' \describe{
+#'   \item{Location}{Region, subregion, country or area}
+#'   \item{Period}{Year range}
+#'   \item{0, 1, 5, ..., 95, 100+}{life expactancy at age}
+#' }
+#' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
+"data.lifeEx.1950_to_2020"
+
+#' Life expectancy - 2020 - 2100
+#'
+#' Life expectancy at exact age for both sexes combined by region and period.
+#' Data set extracted from United Nations data "Life Expectancy at exact age x (ex) - Both Sexes"
+#' obtained from source,
+#'
+#' @format A data table containing 3514 observations of 24 variables
+#' \describe{
+#'   \item{Location}{Region, subregion, country or area}
+#'   \item{Period}{Year range}
+#'   \item{0, 1, 5, ..., 95, 100+}{life expactancy at age}
+#' }
+#' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
+"data.lifeEx.1950_to_2020"
+
+
 

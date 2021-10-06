@@ -4,18 +4,22 @@
 \alias{getConditionData}
 \title{Retrieve location and condition specific incidence, DALYs and deaths data}
 \usage{
-getConditionData(location, condition, metric)
+getConditionData(location, condition, metric = NA, prop = 1)
 }
 \arguments{
-\item{location}{country that matches UN data}
+\item{location}{country or region}
 
-\item{condition}{either RHD or cellulitis}
+\item{condition}{Cellulitis, Rheumatic Heart Disease, Impetigo, Pharyngitis
+or Invasive infection}
 
-\item{metric}{Rate, Number or Percent}
+\item{metric}{Rate, Number or Percent. Only used when extracting Cellulitis
+or Rheumatic Heart Disease data}
+
+\item{prop}{Proportion of incident data that is attributable to GAS}
 }
 \value{
 list(data.frame, data.frame, data.frame)
 }
 \description{
-Retrieve location and condition specific incidence, DALYs and deaths data
+Note: Only Cellulitis and Rheumatic Heart Disease have country-specific data
 }
