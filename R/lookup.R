@@ -115,3 +115,26 @@ inc_impetigo <- dplyr::tribble(
   "80 to 84",  0
 )
 
+#Need to CHECK
+probDeath_RHD <- dplyr::tribble(
+~TimeSinceRHD,	~CpDeath.HIC,  ~CpDeath.LMIC, 	~pDeath.HIC,  ~pDeath.LMIC,
+    0,         	0.001399175,       	0.11,       	0.001399175,  	0.11,
+    1,        	0.004819936,	      0.17,       	0.003420761,  	0.06,
+    2,        	0.011672587,	      0.19,	        0.006852651,	  0.0163,
+    3,        	0.013507646,	      0.2,	        0.001835059,	  0.0163,
+    4,        	0.015491904,	      0.22,	        0.001984258,	  0.0163,
+    5,	        0.022277603,	      0.24,	        0.006785699,	  0.0163,
+    6,	        0.022277603,	      0.25,       	0,            	0.0163,
+    7,	        0.022277603,	      0.27,	        0,            	0.0163,
+    8,	        0.02534893,	        0.28,	        0.003071327,  	0.0163,
+    9,	        0.0295888,	        0.3,	        0.00423987,   	0.0163
+)
+
+#4% of invasive incidents result in death in the first year
+probDeath_invasive <- dplyr::tribble(
+  ~TimeSince,	~pDeath,
+    0,         	0.04
+)
+
+
+

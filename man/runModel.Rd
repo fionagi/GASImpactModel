@@ -20,6 +20,7 @@ runModel(
   vaccAge = 0,
   vaccEff = 100,
   vaccDur = 10,
+  waning = FALSE,
   impType,
   pYears = 10,
   initPop
@@ -49,6 +50,8 @@ runModel(
 \item{vaccEff}{effectiveness of vaccine, as a percentage}
 
 \item{vaccDur}{no. of years that vaccine is effective}
+
+\item{waning}{assume linear waning immunity, TRUE or FALSE}
 
 \item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
 
