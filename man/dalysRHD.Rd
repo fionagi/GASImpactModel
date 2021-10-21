@@ -2,25 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{dalysRHD}
 \alias{dalysRHD}
-\title{#' Find incidence rates with 95\% uncertainty intervals
-#' NOTE: Not currently used in app
-#'
-#' @param careEp  raw care episodes-at-age
-#' @param pop population-at-age that care episodes relate to
-#' @param propAttr prop of episodes-at-age that are attributable to GAS for each disease
-#' @param rate eg. per 100 persons, per 100k
-#' @param years how many years does data cover
-#' @param grps data frame used to combine and present results in user provided groups
-#'
-#' @return matrix
-#' @export
-incRates <- function(careEp, pop, propAttr, rate=100000, years=1, grps=1)
-{
-age <- careEp\link{,1}
-careEp <- careEp\link{,-1}
-careEp <- careEp/years #find yearly average
-rownames(careEp) <- age
-colnames(pop) <- c("Age", "n")}
+\title{Find DALYs for RHD}
 \usage{
 dalysRHD(noVacc_counts, vacc_counts, lifeEx, HIC_flag)
 }
@@ -33,8 +15,5 @@ dalysRHD(noVacc_counts, vacc_counts, lifeEx, HIC_flag)
 list(matrix, matrix)
 }
 \description{
-
-}
-\details{
-
+Find DALYs for RHD
 }

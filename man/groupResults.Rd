@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{groupResults}
 \alias{groupResults}
-\title{Present results in age groups}
+\title{Present results in age groups.}
 \usage{
 groupResults(age_data)
 }
@@ -13,5 +13,6 @@ groupResults(age_data)
 data.frame
 }
 \description{
-Present results in age groups
+Note: Currently only working if maximum age of cohort is the upper
+limit on an age group, with age groups as defined in lookup table
 }

@@ -26,7 +26,10 @@ age_groups <- dplyr::tribble(
   "65 to 69",  5,
   "70 to 74",  5,
   "75 to 79",  5,
-  "80 to 84",   5
+  "80 to 84",  5,
+  "85 to 89",  5,
+  "90 to 94",  5,
+  "95 to 99",  5
 )
 
 disability_weights <- dplyr::tribble(
@@ -67,7 +70,10 @@ inc_pharyngitis <- dplyr::tribble(
   "65 to 69",  0,
   "70 to 74",  0,
   "75 to 79",  0,
-  "80 to 84",  0
+  "80 to 84",  0,
+  "85 to 89",  0,
+  "90 to 94",  0,
+  "95 to 99",  0
 )
 
 #CHECK
@@ -90,7 +96,10 @@ inc_invasive <- dplyr::tribble(
   "65 to 69",  0,
   "70 to 74",  0,
   "75 to 79",  0,
-  "80 to 84",  0
+  "80 to 84",  0,
+  "85 to 89",  0,
+  "90 to 94",  0,
+  "95 to 99",  0
 )
 #CHECK - estimates are per population, not 100,000 population
 inc_impetigo <- dplyr::tribble(
@@ -112,7 +121,10 @@ inc_impetigo <- dplyr::tribble(
   "65 to 69",  0,
   "70 to 74",  0,
   "75 to 79",  0,
-  "80 to 84",  0
+  "80 to 84",  0,
+  "85 to 89",  0,
+  "90 to 94",  0,
+  "95 to 99",  0
 )
 
 #Need to CHECK

@@ -4,7 +4,7 @@
 \alias{getLifeExData}
 \title{Retrieve life expectancy at age}
 \usage{
-getLifeExData(location, yearV, pYears, ageV = 0, impType)
+getLifeExData(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 }
 \arguments{
 \item{location}{country that matches UN data}
@@ -15,12 +15,14 @@ getLifeExData(location, yearV, pYears, ageV = 0, impType)
 
 \item{ageV}{vaccination age}
 
+\item{maxAge}{maximum age of cohort}
+
 \item{impType}{the type of impact analysis, Calendar year, Year of birth or Year of Vaccination}
 }
 \value{
 data.frame
 }
 \description{
-Follow a cohort from age 0 in year of vaccine introduction for
-a period of 85 years, retrieving expected years of life left at age
+Follow a cohort from age 0 in year of vaccine introduction
+to maximum age, retrieving expected years of life left at age
 }

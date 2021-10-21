@@ -3,7 +3,7 @@
 \name{runModel}
 \alias{runModel}
 \title{Run Markov models for vaccine impact scenario
-NOTE: Cost, DALYS and discounting not currently used. Change nyears to maxAge?
+NOTE: Cost, DALYS and discounting not currently used.
 Only written for one condition though some programming started to allow for
 multiple condition to be modeled at the same time}
 \usage{
@@ -15,12 +15,13 @@ runModel(
   rate = 1e+05,
   mortality,
   dRate = 0,
-  nyears = 85,
+  maxAge = 99,
   yearV,
   vaccAge = 0,
   vaccEff = 100,
   vaccDur = 10,
   waning = FALSE,
+  ramp = FALSE,
   impType,
   pYears = 10,
   initPop
@@ -41,7 +42,7 @@ runModel(
 
 \item{dRate}{discount rate as a percentage. Default 0\%}
 
-\item{nyears}{maximum age of cohort}
+\item{maxAge}{maximum age of cohort}
 
 \item{yearV}{year of vaccine introduction}
 
@@ -52,6 +53,8 @@ runModel(
 \item{vaccDur}{no. of years that vaccine is effective}
 
 \item{waning}{assume linear waning immunity, TRUE or FALSE}
+
+\item{ramp}{assume linear 10 year ramp up to maximum efficacy from year of introduction}
 
 \item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
 

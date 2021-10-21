@@ -164,4 +164,20 @@
 "data.lifeEx.1950_to_2020"
 
 
+#' Country-specific year of vaccine introduction and maximum coverage
+#'
+#' Shift health prediction of likely year of vaccine introduction for
+#' each country and predicted maximum coverage proportion
+#'
+#' @format A data table containing 218 observations of 6 variables
+#' \describe{
+#'   \item{Country}{Country}
+#'   \item{Region}{Region}
+#'   \item{Income.Group}{One of "Low income", "Lower middle income",
+#'                       "Upper middle income" or "High income"}
+#'   \item{Year.of.Introduction}{Predicted year of vaccine introbution}
+#'   \item{Coverage}{As a proportion}
+#'   \item{Size.of Public.Market}{As a proportion}
+#' }
+"data.coveragebycountry"
 

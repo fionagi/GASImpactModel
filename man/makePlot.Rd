@@ -8,8 +8,8 @@ makePlot(
   noVacc_data,
   vacc_data,
   ylabel,
-  maxAge = 84,
   vAge,
+  maxAge = 99,
   vDur,
   vYear,
   impType,
@@ -24,6 +24,8 @@ makePlot(
 \item{ylabel}{label for y-axis}
 
 \item{vAge}{vaccination age}
+
+\item{maxAge}{maximum age of cohort}
 
 \item{vDur}{vaccination durability}
 
