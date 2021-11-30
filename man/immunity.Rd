@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{immunity}
 \alias{immunity}
-\title{Find proportion of population immmune}
+\title{Find proportion of population immune}
 \usage{
 immunity(waning, durability, efficacy)
 }
@@ -18,5 +18,5 @@ else number of years of full immunity (after which immunity drops to 0)}
 vector
 }
 \description{
-Find proportion of population immmune
+Find proportion of population immune
 }

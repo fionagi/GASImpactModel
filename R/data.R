@@ -53,7 +53,7 @@
 #' \describe{
 #'   \item{measure}{Either Incidence, Deaths or DALYs}
 #'   \item{location}{Region, subregion, country or area}
-#'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 to 84}
+#'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups up to 95 plus}
 #'   \item{metric}{Rate, Number or Percent}
 #'   \item{val}{measure value}
 #'   \item{upper}{upper bound of 95% confidence interval}
@@ -73,7 +73,7 @@
 #' \describe{
 #'   \item{measure}{Either Incidence, Deaths or DALYs}
 #'   \item{location}{Region, subregion, country or area}
-#'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups until 80 to 84}
+#'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups up to 95 plus}
 #'   \item{metric}{Rate, Number or Percent}
 #'   \item{val}{measure value}
 #'   \item{upper}{upper bound of 95% confidence interval}
@@ -161,7 +161,7 @@
 #'   \item{0, 1, 5, ..., 95, 100+}{life expactancy at age}
 #' }
 #' @source \url{https://population.un.org/wpp/Download/Standard/Mortality/}
-"data.lifeEx.1950_to_2020"
+"data.lifeEx.pred2100"
 
 
 #' Country-specific year of vaccine introduction and maximum coverage

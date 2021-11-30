@@ -2,28 +2,18 @@
 % Please edit documentation in R/functions.R
 \name{transProb}
 \alias{transProb}
-\title{Find transition probabilities for Markov model}
+\title{Find transition probabilities at each age from age of vaccination for each state}
 \usage{
-transProb(prD, lifeTable, maxAge, V_Eff, V_Age, V_Dur, impType)
+transProb(probD, probMort)
 }
 \arguments{
-\item{prD}{probability of disease without vaccine}
+\item{probD}{probability of disease at age without vaccine}
 
-\item{lifeTable}{all-cause mortality}
-
-\item{maxAge}{number of years over which transition probs. calculated}
-
-\item{V_Eff}{vaccine effectiveness, reduce prob. by this proportion}
-
-\item{V_Age}{age when vaccine is administered}
-
-\item{V_Dur}{length of time that vaccine is effective for}
-
-\item{impType}{type of impact analysis: Calendar year, Year of birth, Year of vaccination}
+\item{probMort}{all-cause mortality for cohort at age}
 }
 \value{
 matrix
 }
 \description{
-Find transition probabilities for Markov model
+Find transition probabilities at each age from age of vaccination for each state
 }

@@ -4,7 +4,7 @@
 \alias{getInitPop}
 \title{Find population at birth for cohorts to be modeled}
 \usage{
-getInitPop(location, yearV, pYears, ageV, impType)
+getInitPop(location, yearV, pYears, ageV, birth = TRUE)
 }
 \arguments{
 \item{location}{country that matches UN data}
@@ -15,7 +15,7 @@ getInitPop(location, yearV, pYears, ageV, impType)
 
 \item{ageV}{vaccination age}
 
-\item{impType}{the type of impact analysis, Calendar year, Year of birth or Year of Vaccination}
+\item{birth}{flag indicating to return population at birth for each cohort}
 }
 \value{
 data.frame

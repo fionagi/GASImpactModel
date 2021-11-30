@@ -2,19 +2,14 @@
 % Please edit documentation in R/functions.R
 \name{runModel}
 \alias{runModel}
-\title{Run Markov models for vaccine impact scenario
-NOTE: Cost, DALYS and discounting not currently used.
-Only written for one condition though some programming started to allow for
-multiple condition to be modeled at the same time}
+\title{Main function to produce results for vaccine impact scenario}
 \usage{
 runModel(
   location,
   condition,
   inc,
-  propA = 1,
   rate = 1e+05,
   mortality,
-  dRate = 0,
   maxAge = 99,
   yearV,
   vaccAge = 0,
@@ -34,13 +29,9 @@ runModel(
 
 \item{inc}{incidence rates for each condition}
 
-\item{propA}{proportion of incidents attributable to Strep A. Default 1.}
-
 \item{rate}{rate used for inc. Default 100,000}
 
 \item{mortality}{all-cause mortality rate at age}
-
-\item{dRate}{discount rate as a percentage. Default 0\%}
 
 \item{maxAge}{maximum age of cohort}
 
@@ -60,12 +51,11 @@ runModel(
 
 \item{pYears}{no. of years to project}
 
-\item{initPop}{used for modeling if metric is Number}
+\item{initPop}{population at birth for cohorts of interest}
 }
 \value{
 list
 }
 \description{
-Run Markov models for vaccine impact scenario and produce table
-of comparison metrics. This function calls transProb and heemodModel
+Main function to produce results for vaccine impact scenario
 }

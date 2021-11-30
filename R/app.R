@@ -103,6 +103,12 @@
 #                     tags$script("$(\"input:radio[name='impactChoice'][value='Year of birth']\").parent().css('background-color', 'lightblue');"),
 #                     tags$script("$(\"input:radio[name='impactChoice'][value='Year of vaccination']\").parent().css('background-color', 'lightblue');"),
 #
+#                     radioGroupButtons(inputId = "plotChoice",
+#                                      choices = c("Cases/DALYs/Deaths", "Cases/DALYs/Deaths averted"),
+#                                      selected = "Cases/DALYs/Deaths",
+#                                      checkIcon = list(yes = icon("check"))),
+#
+#
 #                     selectInput(inputId = "plotYears",
 #                                             label = "Number of years to plot:",
 #                                              choices = c(10, 20, 30)),
@@ -209,21 +215,24 @@
 #
 #     if(condition == "Cellulitis" || condition == "Rheumatic Heart Disease"){
 #       incR <- getConditionData(country, condition, "Rate", prop)[[1]]
+#       rate <- 100000
 #     }else{
 #       incR <- getConditionData(country, condition, "Rate", prop)
+#       rate <- 1
 #     }
 #
 #     mProb <- getMorData(location = country, yearV = yearV, pYears = plotYears,
 #                         ageV = ageV, impType = impType, )
 #
 #     initPop <- getInitPop(location = country, yearV = yearV,
-#                             pYears = plotYears, ageV = ageV, impType = impType)
+#                             pYears = plotYears, ageV = ageV)
 #
 #     impModels <- runModel(location = country, condition = condition, inc = incR,
-#                             mortality = mProb, yearV = yearV, vaccAge = ageV,
-#                             vaccEff = overallEff, vaccDur = duration,
-#                             waning = waning, ramp = ramp, impType = impType,
-#                             pYears = plotYears, initPop = initPop)
+#                             rate = rate, mortality = mProb, yearV = yearV,
+#                             vaccAge = ageV, vaccEff = overallEff,
+#                             vaccDur = duration, waning = waning, ramp = ramp,
+#                             impType = impType, pYears = plotYears,
+#                             initPop = initPop)
 #
 #     impModels
 # })
@@ -232,6 +241,7 @@
 #
 #   impModels <- impactData()
 #   impType <- input$impactChoice
+#   plotType <- input$plotChoice
 #   plotYears <- isolate(as.numeric(input$plotYears))
 #
 #   country <- isolate(input$country)
@@ -251,28 +261,54 @@
 #   vacc_deaths <- impModels[[6]]
 #   noVacc_pop <- impModels[[7]]
 #
-#   p_counts <- makePlot(noVacc_counts, vacc_counts, ylabel = "Number of cases",
-#                  vAge = ageV, vDur = duration, vYear = yearV, impType = impType,
+#   if(plotType == "Cases/DALYs/Deaths")
+#   {
+#     p_counts <- makePlot(noVacc_counts, vacc_counts, ylabel = "Number of cases",
+#                  vAge = ageV, vYear = yearV, impType = impType,
 #                  pYears = plotYears)
 #
-#    if(!is.na(noVacc_deaths)[1]){
-#     p_dalys <- makePlot(noVacc_dalys, vacc_dalys, ylabel = "DALYs",
-#                         vAge = ageV, vDur = duration, vYear = yearV, impType = impType,
-#                         pYears = plotYears)
-#     p_deaths <- makePlot(noVacc_deaths, vacc_deaths, ylabel = "Deaths",
-#                          vAge = ageV, vDur = duration, vYear = yearV, impType = impType,
-#                          pYears = plotYears)
-#     ggarrange(p_counts[[1]], p_counts[[2]], p_dalys[[1]], p_dalys[[2]],
-#               p_deaths[[1]], p_deaths[[2]], ncol = 2, nrow = 3)
-#   }else{
-#     if(!is.na(noVacc_dalys)[1]){
+#     if(!is.na(noVacc_deaths)[1]){
 #       p_dalys <- makePlot(noVacc_dalys, vacc_dalys, ylabel = "DALYs",
-#                           vAge = ageV, vDur = duration, vYear = yearV, impType = impType,
-#                           pYears = plotYears)
+#                         vAge = ageV, vYear = yearV, impType = impType,
+#                         pYears = plotYears)
+#       p_deaths <- makePlot(noVacc_deaths, vacc_deaths, ylabel = "Deaths",
+#                          vAge = ageV, vYear = yearV, impType = impType,
+#                          pYears = plotYears)
 #       ggarrange(p_counts[[1]], p_counts[[2]], p_dalys[[1]], p_dalys[[2]],
-#                 ncol = 2, nrow = 2)
+#               p_deaths[[1]], p_deaths[[2]], ncol = 2, nrow = 3)
 #     }else{
-#       ggarrange(p_counts[[1]], p_counts[[2]], ncol = 2, nrow = 1)
+#       if(!is.na(noVacc_dalys)[1]){
+#         p_dalys <- makePlot(noVacc_dalys, vacc_dalys, ylabel = "DALYs",
+#                           vAge = ageV, vYear = yearV, impType = impType,
+#                           pYears = plotYears)
+#         ggarrange(p_counts[[1]], p_counts[[2]], p_dalys[[1]], p_dalys[[2]],
+#                 ncol = 2, nrow = 2)
+#       }else{
+#         ggarrange(p_counts[[1]], p_counts[[2]], ncol = 2, nrow = 1)
+#       }
+#     }
+#   }else{
+#     p_countsA <- makePlotAvert(noVacc_counts, vacc_counts, ylabel = "Number of cases",
+#                          vAge = ageV, vYear = yearV, impType = impType,
+#                          pYears = plotYears)
+#
+#     if(!is.na(noVacc_deaths)[1]){
+#       p_dalysA <- makePlotAvert(noVacc_dalys, vacc_dalys, ylabel = "DALYs",
+#                           vAge = ageV, vYear = yearV, impType = impType,
+#                           pYears = plotYears)
+#       p_deathsA <- makePlotAvert(noVacc_deaths, vacc_deaths, ylabel = "Deaths",
+#                            vAge = ageV, vYear = yearV, impType = impType,
+#                            pYears = plotYears)
+#       ggarrange(p_countsA, p_dalysA, p_deathsA, ncol = 1, nrow = 3)
+#     }else{
+#       if(!is.na(noVacc_dalys)[1]){
+#         p_dalysA <- makePlotAvert(noVacc_dalys, vacc_dalys, ylabel = "DALYs",
+#                             vAge = ageV, vYear = yearV, impType = impType,
+#                             pYears = plotYears)
+#         ggarrange(p_countsA, p_dalysA, ncol = 1, nrow = 2)
+#       }else{
+#         ggarrange(p_countsA, ncol = 1, nrow = 1)
+#       }
 #     }
 #   }
 #
@@ -307,25 +343,48 @@
 #   content = function(file) {
 #     impM <- impactData()
 #
-#     write.xlsx(groupResults(impM[[1]]), file, sheetName = "Counts_PreVacc",
+#     years <- colnames(impM[[1]])
+#
+#     colnames(impM[[1]]) <- paste("Year:", years)
+#     colnames(impM[[2]]) <- paste("Year:", years)
+#
+#     write.xlsx(impM[[1]], file, sheetName = "Counts_PreVacc",
 #                       col.names = TRUE, row.names = TRUE, append = FALSE)
-#     write.xlsx(groupResults(impM[[2]]), file, sheetName = "Counts_Vacc",
+#     write.xlsx(impM[[2]], file, sheetName = "Counts_Vacc",
 #                col.names = TRUE, row.names = TRUE, append = TRUE)
+#     #write.xlsx(groupResults(impM[[1]]), file, sheetName = "Counts_PreVacc",
+#     #           col.names = TRUE, row.names = TRUE, append = FALSE)
+#     #write.xlsx(groupResults(impM[[2]]), file, sheetName = "Counts_Vacc",
+#     #           col.names = TRUE, row.names = TRUE, append = TRUE)
 #
 #     if(!is.na(impM[[3]])[1])
 #     {
-#      write.xlsx(groupResults(impM[[3]]), file, sheetName = "DALYs_PreVacc",
-#                col.names = TRUE, row.names = TRUE, append = TRUE)
-#      write.xlsx(groupResults(impM[[4]]), file, sheetName = "DALYs_Vacc",
-#                col.names = TRUE, row.names = TRUE, append = TRUE)
+#      #write.xlsx(groupResults(impM[[3]]), file, sheetName = "DALYs_PreVacc",
+#      #          col.names = TRUE, row.names = TRUE, append = TRUE)
+#      #write.xlsx(groupResults(impM[[4]]), file, sheetName = "DALYs_Vacc",
+#      #          col.names = TRUE, row.names = TRUE, append = TRUE)
+#      colnames(impM[[3]]) <- paste("Year:", years)
+#      colnames(impM[[4]]) <- paste("Year:", years)
+#
+#      write.xlsx(impM[[3]], file, sheetName = "DALYs_PreVacc",
+#                 col.names = TRUE, row.names = TRUE, append = TRUE)
+#      write.xlsx(impM[[4]], file, sheetName = "DALYs_Vacc",
+#                 col.names = TRUE, row.names = TRUE, append = TRUE)
 #     }
 #
 #     if(!is.na(impM[[5]])[1])
 #     {
-#      write.xlsx(groupResults(impM[[5]]), file, sheetName = "Deaths_PreVacc",
-#                col.names = TRUE, row.names = TRUE, append = TRUE)
-#      write.xlsx(groupResults(impM[[6]]), file, sheetName = "Deaths_Vacc",
-#                col.names = TRUE, row.names = TRUE, append = TRUE)
+#      #write.xlsx(groupResults(impM[[5]]), file, sheetName = "Deaths_PreVacc",
+#      #          col.names = TRUE, row.names = TRUE, append = TRUE)
+#      #write.xlsx(groupResults(impM[[6]]), file, sheetName = "Deaths_Vacc",
+#      #          col.names = TRUE, row.names = TRUE, append = TRUE)
+#      colnames(impM[[5]]) <- paste("Year:", years)
+#      colnames(impM[[6]]) <- paste("Year:", years)
+#
+#      write.xlsx(impM[[5]], file, sheetName = "Deaths_PreVacc",
+#                 col.names = TRUE, row.names = TRUE, append = TRUE)
+#      write.xlsx(impM[[6]], file, sheetName = "Deaths_Vacc",
+#                 col.names = TRUE, row.names = TRUE, append = TRUE)
 #     }
 #   }
 # )

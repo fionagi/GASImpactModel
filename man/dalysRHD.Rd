@@ -10,6 +10,10 @@ dalysRHD(noVacc_counts, vacc_counts, lifeEx, HIC_flag)
 \item{noVacc_counts}{pre-vaccine numbers of incidents}
 
 \item{vacc_counts}{vaccine scenario numbers of incidents}
+
+\item{lifeEx}{remaining life expectancy by age and year}
+
+\item{HIC_flag}{if country is a High Income Country value is 1, else 0}
 }
 \value{
 list(matrix, matrix)

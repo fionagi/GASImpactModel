@@ -29,7 +29,7 @@ age_groups <- dplyr::tribble(
   "80 to 84",  5,
   "85 to 89",  5,
   "90 to 94",  5,
-  "95 to 99",  5
+  "95 plus",  5
 )
 
 disability_weights <- dplyr::tribble(
@@ -73,7 +73,7 @@ inc_pharyngitis <- dplyr::tribble(
   "80 to 84",  0,
   "85 to 89",  0,
   "90 to 94",  0,
-  "95 to 99",  0
+  "95 plus",  0
 )
 
 #CHECK
@@ -99,10 +99,10 @@ inc_invasive <- dplyr::tribble(
   "80 to 84",  0,
   "85 to 89",  0,
   "90 to 94",  0,
-  "95 to 99",  0
+  "95 plus",  0
 )
-#CHECK - estimates are per population, not 100,000 population
-inc_impetigo <- dplyr::tribble(
+#Prevalence estimates for impetigo
+prev_impetigo <- dplyr::tribble(
   ~age,      ~val,
   "<1 year",   0.0008195,
   "1 to 4",    0.0014657,
@@ -124,8 +124,14 @@ inc_impetigo <- dplyr::tribble(
   "80 to 84",  0,
   "85 to 89",  0,
   "90 to 94",  0,
-  "95 to 99",  0
+  "95 plus",  0
 )
+
+#Adjust prevalence estimates using duration to get incidence
+#estimates for impetigo
+inc_impetigo <- dplyr::tibble(prev_impetigo$age,
+                      prev_impetigo$val/(duration$Days[duration$Condition == "Impetigo"]/365.25))
+colnames(inc_impetigo) <- c("age", "val")
 
 #Need to CHECK
 probDeath_RHD <- dplyr::tribble(
