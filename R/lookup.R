@@ -181,7 +181,7 @@ ARFratio <- dplyr::tribble(
   "80 to 84",  0,            0,
   "85 to 89",  0,            0,
   "90 to 94",  0,            0,
-  "95 to 99",  0,            0
+  "95 plus",  0,            0
 )
 
 #Progression from ARF to RHD (cols) for each year after 0 vax efficacy (rows)

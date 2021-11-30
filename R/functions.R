@@ -59,7 +59,7 @@ getConditionData <- function(location, condition, metric = NA, prop = 1)
   {
     data <- get("data.rhd2019")
     inc <- data[data$location==location & data$measure=="Incidence" & data$metric=="Rate",]
-    inc <- missingData(inc) ##Rates for age 85+ not downloaded??
+    inc <- missingData(inc)
     endemic.data <- get("data.region")
     endemic <- ifelse(endemic.data$Endemic[endemic.data$Country==location]=="Yes","Endemic","NonEndemic")
     for (z in inc$age)
