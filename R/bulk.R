@@ -144,6 +144,34 @@ for(s in 1:numScenarios )
                                                t(noVacc_counts)-t(vacc_counts))
     i <- i+projYears
 
+    #RHD cases progressing to from ARF occurring up to 9 years prior to age at end of vaccine efficacy
+    if(condition=="Acute Rheumatic Fever")
+    {
+      ageEndVaxEff <- vAge+durability
+      for(a1 in i:(i+projYears-1))
+      {
+        results_Vaxx[a1,] <- c(country, countryCode, condition, "RHD cases progressing from ARF",
+                               introYear+(a1-i),
+                               (introYear-vAge)+(a1-i),
+                               rep(0,ageEndVaxEff),
+                               t(vacc_counts)[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
+                               rep(0,(maxAge+1)-(ageEndVaxEff+9)))
+
+        results_averted[a1,] <- c(country, countryCode, condition, "RHD cases progressing from ARF",
+                                  introYear+(a1-i),
+                                  (introYear-vAge)+(a1-i),
+                                  rep(0,ageEndVaxEff),
+                                  (t(noVacc_counts)-t(vacc_counts))[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
+                                  rep(0,(maxAge+1)-(ageEndVaxEff+9)))
+
+
+      }
+
+    i <- i+projYears
+
+    }
+
+
     #dalys
     results_preVaxx[i:(i+projYears-1), ] <- cbind(country, countryCode, condition, "DALYs",
                                                    introYear:(introYear+projYears-1),
@@ -219,32 +247,6 @@ for(s in 1:numScenarios )
                                                    t(noVacc_pop)) #same pop values
     i <- i+projYears
 
-    #RHD cases progressing to from ARF occurring up to 9 years prior to age at end of vaccine efficacy
-    if(condition=="Acute Rheumatic Fever")
-    {
-      ageEndVaxEff <- vAge+durability
-      for(a1 in i:(i+projYears-1))
-      {
-        results_Vaxx[a1,] <- c(country, countryCode, condition, "RHD cases progressing from ARF",
-                                  introYear+(a1-i),
-                                  (introYear-vAge)+(a1-i),
-                                  rep(0,ageEndVaxEff),
-                                  t(vacc_counts)[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
-                                  rep(0,(maxAge+1)-(ageEndVaxEff+9)))
-
-        results_averted[a1,] <- c(country, countryCode, condition, "RHD cases progressing from ARF",
-                               introYear+(a1-i),
-                               (introYear-vAge)+(a1-i),
-                               rep(0,ageEndVaxEff),
-                               (t(noVacc_counts)-t(vacc_counts))[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
-                               rep(0,(maxAge+1)-(ageEndVaxEff+9)))
-
-
-      }
-
-      i <- i+projYears
-
-    }
 
     j <- j+1
   }
