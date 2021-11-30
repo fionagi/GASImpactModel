@@ -21,8 +21,8 @@ getCountries <- function(region)
 #'
 #' Note: Only Cellulitis and Rheumatic Heart Disease have country-specific data
 #' @param location country or region
-#' @param condition Cellulitis, Rheumatic Heart Disease, Impetigo, Pharyngitis
-#'                  or Invasive infection
+#' @param condition Cellulitis, Rheumatic Heart Disease, Impetigo, Pharyngitis,
+#'                  Invasive infection, or Acute Rheumatic Fever
 #' @param metric Rate, Number or Percent. Only used when extracting Cellulitis
 #'               or Rheumatic Heart Disease data
 #' @param prop Proportion of incident data that is attributable to GAS
@@ -53,6 +53,21 @@ getConditionData <- function(location, condition, metric = NA, prop = 1)
     }
 
     return(list(inc, deaths, dalys))
+  }
+
+  if(condition == "Acute Rheumatic Fever")
+  {
+    data <- get("data.rhd2019")
+    inc <- data[data$location==location & data$measure=="Incidence" & data$metric=="Rate",]
+    inc <- missingData(inc) ##Rates for age 85+ not downloaded??
+    endemic.data <- get("data.region")
+    endemic <- ifelse(endemic.data$Endemic[endemic.data$Country==location]=="Yes","Endemic","NonEndemic")
+    for (z in inc$age)
+    {
+      inc$val[which(inc$age==z)] <- inc$val[which(inc$age==z)]*as.numeric(ARFratio[which(ARFratio==z), endemic])
+    }
+
+    return(inc)
   }
 
   condData <- paste("inc_", label, sep= '')

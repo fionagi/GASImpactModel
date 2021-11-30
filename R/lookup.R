@@ -4,7 +4,8 @@ lookup_condition <- dplyr::tribble(
         "Cellulitis",                  "cellulitis",
         "Invasive infection",          "invasive",
         "Pharyngitis",                 "pharyngitis",
-        "Impetigo",                    "impetigo"
+        "Impetigo",                    "impetigo",
+        "Acute Rheumatic Fever",       "arf"
 )
 
 age_groups <- dplyr::tribble(
@@ -38,7 +39,8 @@ disability_weights <- dplyr::tribble(
   "Cellulitis",                0.051,
   "Invasive infection",        0.133,
   "Pharyngitis",               0.026,
-  "Impetigo",                  0.006
+  "Impetigo",                  0.006,
+  "Acute Rheumatic Fever",     0.049
 )
 
 duration <- dplyr::tribble(
@@ -47,7 +49,8 @@ duration <- dplyr::tribble(
   "Cellulitis",               16.4,
   "Invasive infection",       10,
   "Pharyngitis",              5,
-  "Impetigo",                 15.5
+  "Impetigo",                 15.5,
+  "Acute Rheumatic Fever",    28
 )
 
 #22.1 episodes per 100 persons per year (5-14yrs)
@@ -155,4 +158,44 @@ probDeath_invasive <- dplyr::tribble(
 )
 
 
+#Ratio of ARF to RHD
+ARFratio <- dplyr::tribble(
+  ~age,      ~Endemic,     ~NonEndemic,
+  "<1 year",   0,            0,
+  "1 to 4",    2,            2.5,
+  "5 to 9",    4,            3.5,
+  "10 to 14",  2.5,          3.25,
+  "15 to 19",  1,            1,
+  "20 to 24",  1,            1,
+  "25 to 29",  1,            1,
+  "30 to 34",  0.5,          0.8,
+  "35 to 39",  0.5,          0.6,
+  "40 to 44",  0.5,          0.4,
+  "45 to 49",  0,            0,
+  "50 to 54",  0,            0,
+  "55 to 59",  0,            0,
+  "60 to 64",  0,            0,
+  "65 to 69",  0,            0,
+  "70 to 74",  0,            0,
+  "75 to 79",  0,            0,
+  "80 to 84",  0,            0,
+  "85 to 89",  0,            0,
+  "90 to 94",  0,            0,
+  "95 to 99",  0,            0
+)
+
+#Progression from ARF to RHD (cols) for each year after 0 vax efficacy (rows)
+ARFprog <- dplyr::tribble(
+  ~TimeSince0vaxEff, ~TimeSinceARF_9y, ~TimeSinceARF_8y, ~TimeSinceARF_7y, ~TimeSinceARF_6y,
+  ~TimeSinceARF_5y, ~TimeSinceARF_4y, ~TimeSinceARF_3y, ~TimeSinceARF_2y, ~TimeSinceARF_1y,
+  1, 0.01588, 0.01588, 0.01588, 0.01588, 0.01588, 0.04215, 0.04215, 0.04215, 0.04215,
+  2, 0.01588, 0.01588, 0.01588, 0.01588, 0.01588, 0.04215, 0.04215, 0.04215, 0.00000,
+  3, 0.01588, 0.01588, 0.01588, 0.01588, 0.01588, 0.04215, 0.04215, 0.00000, 0.00000,
+  4, 0.01588, 0.01588, 0.01588, 0.01588, 0.01588, 0.04215, 0.00000, 0.00000, 0.00000,
+  5, 0.01588, 0.01588, 0.01588, 0.01588, 0.01588, 0.00000, 0.00000, 0.00000, 0.00000,
+  6, 0.01588, 0.01588, 0.01588, 0.01588, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,
+  7, 0.01588, 0.01588, 0.01588, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,
+  8, 0.01588, 0.01588, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,
+  9, 0.01588, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000
+)
 
