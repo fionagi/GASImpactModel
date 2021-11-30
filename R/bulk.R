@@ -33,9 +33,14 @@ for(s in 1:numScenarios )
   introYear <- inputFile$IntroYear[s]
   projYears <- inputFile$ProjYears[s]
 
-  results_preVaxx <- matrix(NA, nrow = length(data.region$Country)*projYears*ifelse(condition=="Acute Rheumatic Fever",7,6), ncol = (maxAge+1-vAge)+6)
-  results_Vaxx <- matrix(NA, nrow = length(data.region$Country)*projYears*ifelse(condition=="Acute Rheumatic Fever",7,6), ncol = (maxAge+1-vAge)+6)
-  results_averted <- matrix(NA, nrow = length(data.region$Country)*projYears*ifelse(condition=="Acute Rheumatic Fever",7,6), ncol = (maxAge+1-vAge)+6)
+  results_preVaxx <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
+  results_Vaxx <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
+  results_averted <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
+
+  if(condition == "Acute Rheumatic Fever")
+  {
+    results_averted_ARF.RHD <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
+  }
 
   covShift <- ifelse(coverage == "Shift", TRUE, FALSE)
   yearShift <- ifelse(introYear == "Shift", TRUE, FALSE)
@@ -142,34 +147,57 @@ for(s in 1:numScenarios )
                                                   introYear:(introYear+projYears-1),
                                                   (introYear-vAge):(introYear-vAge+projYears-1),
                                                t(noVacc_counts)-t(vacc_counts))
-    i <- i+projYears
 
-    #RHD cases progressing to from ARF occurring up to 9 years prior to age at end of vaccine efficacy
+
+    #RHD cases progressing from ARF occurring up to 9 years prior to age at end of vaccine efficacy
     if(condition=="Acute Rheumatic Fever")
     {
+      #Cases
       ageEndVaxEff <- vAge+durability
       for(a1 in i:(i+projYears-1))
       {
-        results_Vaxx[a1,] <- c(country, countryCode, condition, "RHD cases progressing from ARF",
-                               introYear+(a1-i),
-                               (introYear-vAge)+(a1-i),
-                               rep(0,ageEndVaxEff),
-                               t(vacc_counts)[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
-                               rep(0,(maxAge+1)-(ageEndVaxEff+9)))
 
-        results_averted[a1,] <- c(country, countryCode, condition, "RHD cases progressing from ARF",
-                                  introYear+(a1-i),
-                                  (introYear-vAge)+(a1-i),
-                                  rep(0,ageEndVaxEff),
-                                  (t(noVacc_counts)-t(vacc_counts))[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
-                                  rep(0,(maxAge+1)-(ageEndVaxEff+9)))
-
+        results_averted_ARF.RHD[a1,] <- c(country, countryCode, "Rheumatic Heart Disease", "Cases",
+                                          introYear+(a1-i),
+                                          (introYear-vAge)+(a1-i),
+                                          rep(0,ageEndVaxEff),
+                                          (t(noVacc_counts)-t(vacc_counts))[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
+                                          rep(0,(maxAge+1)-(ageEndVaxEff+9)))
 
       }
 
-    i <- i+projYears
+      # calculate RHD incidence and simulate DALYs and deaths; this will probably break at some point
+      temp1 <- data.frame(agegrp=cut(vAge:maxAge, c(0, 1, seq(5, 100, by = 5), Inf),right=F, include.lowest = TRUE),
+                          cases=as.numeric(results_averted_ARF.RHD[1,-c(1:6)]),
+                          pop=t(noVacc_pop)[1,])
+      temp2 <- data.frame(age=age_groups$Label,
+                          val=aggregate(cases ~ agegrp, temp1, FUN=sum)[,2]/aggregate(pop ~ agegrp, temp1, FUN=sum)[,2])
 
-    }
+
+      #only need noVacc estimates as analysing projected RHD outcomes based on averted ARF
+      impModels_ARF.RHD <- runModel(location = country, condition = "Rheumatic Heart Disease", inc = temp2,
+                                    rate = rate, mortality = mProb, yearV = introYear,
+                                    vaccAge = vAge, maxAge = maxAge, vaccEff = overallEff,
+                                    vaccDur = durability, waning = waning, ramp = ramp,
+                                    impType = impType, pYears = projYears-1,
+                                    initPop = initPop)
+
+      #noVacc_counts_ARF.RHD <- impModels_ARF.RHD[[1]]
+      #vacc_counts_ARF.RHD <- impModels_ARF.RHD[[2]]
+      noVacc_dalys_ARF.RHD <- impModels_ARF.RHD[[3]]
+      #vacc_dalys_ARF.RHD <- impModels_ARF.RHD[[4]]
+      noVacc_deaths_ARF.RHD <- impModels_ARF.RHD[[5]]
+      #vacc_deaths_ARF.RHD <- impModels_ARF.RHD[[6]]
+      noVacc_pop_ARF.RHD <- impModels_ARF.RHD[[7]]
+      #noVacc_yll_ARF.RHD <- impModels_ARF.RHD[[8]]
+      vacc_yll_ARF.RHD <- impModels_ARF.RHD[[9]]
+      #noVacc_yld_ARF.RHD <- impModels_ARF.RHD[[10]]
+      vacc_yld_ARF.RHD <- impModels_ARF.RHD[[11]]
+
+  }
+
+
+    i <- i+projYears
 
 
     #dalys
@@ -185,6 +213,16 @@ for(s in 1:numScenarios )
                                                    introYear:(introYear+projYears-1),
                                                    (introYear-vAge):(introYear-vAge+projYears-1),
                                                   t(noVacc_dalys)-t(vacc_dalys))
+
+
+    if(condition=="Acute Rheumatic Fever")
+    {
+      results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "DALYs",
+                                                         introYear:(introYear+projYears-1),
+                                                         (introYear-vAge):(introYear-vAge+projYears-1),
+                                                         t(noVacc_dalys_ARF.RHD))
+    }
+
     i <- i+projYears
 
     #deaths
@@ -202,7 +240,26 @@ for(s in 1:numScenarios )
                                                 introYear:(introYear+projYears-1),
                                                 (introYear-vAge):(introYear-vAge+projYears-1),
                                                 t(noVacc_deaths)-t(vacc_deaths))
+
+     if(condition=="Acute Rheumatic Fever")
+     {
+       results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "Deaths",
+                                                          introYear:(introYear+projYears-1),
+                                                          (introYear-vAge):(introYear-vAge+projYears-1),
+                                                          t(noVacc_deaths_ARF.RHD))
+
+     }
+
      i <- i+projYears
+    }
+
+    if(condition=="Acute Rheumatic Fever")
+    {
+      results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "Deaths",
+                                                            introYear:(introYear+projYears-1),
+                                                            (introYear-vAge):(introYear-vAge+projYears-1),
+                                                            t(noVacc_deaths_ARF.RHD))
+      i <- i+projYears
     }
 
     #yll
@@ -218,6 +275,15 @@ for(s in 1:numScenarios )
                                                   introYear:(introYear+projYears-1),
                                                   (introYear-vAge):(introYear-vAge+projYears-1),
                                                   t(noVacc_yll)-t(vacc_yll))
+
+    if(condition=="Acute Rheumatic Fever")
+    {
+      results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "YLL",
+                                                         introYear:(introYear+projYears-1),
+                                                         (introYear-vAge):(introYear-vAge+projYears-1),
+                                                         t(noVacc_yll_ARF.RHD))
+    }
+
     i <- i+projYears
 
     #yld
@@ -233,6 +299,16 @@ for(s in 1:numScenarios )
                                                   introYear:(introYear+projYears-1),
                                                   (introYear-vAge):(introYear-vAge+projYears-1),
                                                   t(noVacc_yld)-t(vacc_yld))
+
+    if(condition=="Acute Rheumatic Fever")
+    {
+      results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "YLD",
+                                                         introYear:(introYear+projYears-1),
+                                                         (introYear-vAge):(introYear-vAge+projYears-1),
+                                                         t(noVacc_yld_ARF.RHD))
+
+    }
+
     i <- i+projYears
 
 
@@ -245,8 +321,15 @@ for(s in 1:numScenarios )
                                                    introYear:(introYear+projYears-1),
                                                    (introYear-vAge):(introYear-vAge+projYears-1),
                                                    t(noVacc_pop)) #same pop values
-    i <- i+projYears
+    if(condition=="Acute Rheumatic Fever")
+    {
+      results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "pop",
+                                                         introYear:(introYear+projYears-1),
+                                                         (introYear-vAge):(introYear-vAge+projYears-1),
+                                                         t(noVacc_pop_ARF.RHD)) #same pop values
+    }
 
+    i <- i+projYears
 
     j <- j+1
   }
@@ -255,12 +338,21 @@ for(s in 1:numScenarios )
   colnames(results_Vaxx) <- c("Location", "Code", "Condition", "Metric", "Vaccination year", "Birth year", as.character(vAge:maxAge))
   colnames(results_averted) <- c("Location", "Code", "Condition", "Metric", "Vaccination year", "Birth year", as.character(vAge:maxAge))
 
+
   write.csv(results_preVaxx[complete.cases(results_preVaxx),],
                 paste(outputDir, outputFilePreVaxx, sep = "\\"), row.names =  F )
   write.csv(results_Vaxx[complete.cases(results_Vaxx),],
                 paste(outputDir, outputFileVaxx, sep = "\\"), row.names = F)
   write.csv(results_averted[complete.cases(results_averted),],
             paste(outputDir, outputFileVaxxAverted, sep = "\\"), row.names = F)
+
+  if(condition == "Acute Rheumatic Fever")
+  {
+    colnames(results_averted_ARF.RHD) <- c("Location", "Code", "Condition", "Metric", "Vaccination year", "Birth year", as.character(vAge:maxAge))
+
+    write.csv(results_averted_ARF.RHD[complete.cases(results_averted_ARF.RHD),],
+              paste(outputDir, paste0("prog", outputFileVaxxAverted), sep = "\\"), row.names = F)
+  }
 }
 
 
