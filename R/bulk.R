@@ -166,7 +166,7 @@ for(s in 1:numScenarios )
 
       }
 
-      # calculate RHD incidence and simulate DALYs and deaths; this will probably break at some point
+      # calculate RHD incidence and simulate DALYs and deaths; might need to loop through years; this will probably break at some point
       temp1 <- data.frame(agegrp=cut(vAge:maxAge, c(0, 1, seq(5, 100, by = 5), Inf),right=F, include.lowest = TRUE),
                           cases=as.numeric(results_averted_ARF.RHD[1,-c(1:6)]),
                           pop=t(noVacc_pop)[1,])
@@ -176,7 +176,7 @@ for(s in 1:numScenarios )
 
       #only need noVacc estimates as analysing projected RHD outcomes based on averted ARF
       impModels_ARF.RHD <- runModel(location = country, condition = "Rheumatic Heart Disease", inc = temp2,
-                                    rate = rate, mortality = mProb, yearV = introYear,
+                                    rate = 1, mortality = mProb, yearV = introYear,
                                     vaccAge = vAge, maxAge = maxAge, vaccEff = overallEff,
                                     vaccDur = durability, waning = waning, ramp = ramp,
                                     impType = impType, pYears = projYears-1,
