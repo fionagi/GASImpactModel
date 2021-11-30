@@ -219,7 +219,7 @@ for(s in 1:numScenarios )
                                                    t(noVacc_pop)) #same pop values
     i <- i+projYears
 
-    #ARF progression to RHD from end of vaccine efficacy
+    #RHD cases progressing to from ARF occurring up to 9 years prior to age at end of vaccine efficacy
     if(condition=="Acute Rheumatic Fever")
     {
       ageEndVaxEff <- vAge+durability

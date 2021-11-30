@@ -184,7 +184,8 @@ ARFratio <- dplyr::tribble(
   "95 plus",  0,            0
 )
 
-#Progression from ARF to RHD (cols) for each year after 0 vax efficacy (rows)
+#Progression from ARF to RHD (cols) for each year after 0 vax efficacy (rows);
+# interpolation of cumulative incidence data from https://doi.org/10.1161/CIRCULATIONAHA.115.020966
 ARFprog <- dplyr::tribble(
   ~TimeSince0vaxEff, ~TimeSinceARF_9y, ~TimeSinceARF_8y, ~TimeSinceARF_7y, ~TimeSinceARF_6y,
   ~TimeSinceARF_5y, ~TimeSinceARF_4y, ~TimeSinceARF_3y, ~TimeSinceARF_2y, ~TimeSinceARF_1y,
