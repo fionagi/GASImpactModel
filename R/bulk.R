@@ -168,6 +168,8 @@ for(s in 1:numScenarios )
 
       noVacc_counts_ARF.RHD <- matrix(as.numeric(t(results_averted_ARF.RHD[i:(i+projYears-1),-c(1:6)])),
                                       nrow = (maxAge+1-vAge), ncol = projYears)
+      rownames(noVacc_counts_ARF.RHD) <- vAge:maxAge
+      colnames(noVacc_counts_ARF.RHD) <- introYear:(introYear+projYears-1)
 
 
       ### Predict RHD outcomes averted based on preventing progression form ARF; will need FG to check.
