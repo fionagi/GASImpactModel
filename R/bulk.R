@@ -166,35 +166,19 @@ for(s in 1:numScenarios )
 
       }
 
-      # calculate RHD incidence and simulate DALYs and deaths; might need to loop through years; this will probably break at some point
-      temp1 <- data.frame(agegrp=cut(vAge:maxAge, c(0, 1, seq(5, 100, by = 5), Inf),right=F, include.lowest = TRUE),
-                          cases=as.numeric(results_averted_ARF.RHD[1,-c(1:6)]),
-                          pop=t(noVacc_pop)[1,])
-      temp2 <- data.frame(age=age_groups$Label,
-                          val=aggregate(cases ~ agegrp, temp1, FUN=sum)[,2]/aggregate(pop ~ agegrp, temp1, FUN=sum)[,2])
+      noVacc_counts_ARF.RHD <- matrix(as.numeric(t(results_averted_ARF.RHD[i:(i+projYears-1),-c(1:6)])),
+                                      nrow = (maxAge+1-vAge), ncol = projYears)
 
 
-      #only need noVacc estimates as analysing projected RHD outcomes based on averted ARF
-      impModels_ARF.RHD <- runModel(location = country, condition = "Rheumatic Heart Disease", inc = temp2,
-                                    rate = 1, mortality = mProb, yearV = introYear,
-                                    vaccAge = vAge, maxAge = maxAge, vaccEff = overallEff,
-                                    vaccDur = durability, waning = waning, ramp = ramp,
-                                    impType = impType, pYears = projYears-1,
-                                    initPop = initPop)
+      ### Predict RHD outcomes averted based on preventing progression form ARF; will need FG to check.
+      RHD_outcomes <- findDalys(condition = "Rheumatic Heart Disease",
+                noVacc_counts = noVacc_counts_ARF.RHD,
+                vacc_counts = vacc_counts, daly_weights = NA,
+                location = country, yearV = introYear, pYears = projYears-1,
+                vaccAge = vAge, maxAge = maxAge, impType = impType)
 
-      #noVacc_counts_ARF.RHD <- impModels_ARF.RHD[[1]]
-      #vacc_counts_ARF.RHD <- impModels_ARF.RHD[[2]]
-      noVacc_dalys_ARF.RHD <- impModels_ARF.RHD[[3]]
-      #vacc_dalys_ARF.RHD <- impModels_ARF.RHD[[4]]
-      noVacc_deaths_ARF.RHD <- impModels_ARF.RHD[[5]]
-      #vacc_deaths_ARF.RHD <- impModels_ARF.RHD[[6]]
-      noVacc_pop_ARF.RHD <- impModels_ARF.RHD[[7]]
-      #noVacc_yll_ARF.RHD <- impModels_ARF.RHD[[8]]
-      vacc_yll_ARF.RHD <- impModels_ARF.RHD[[9]]
-      #noVacc_yld_ARF.RHD <- impModels_ARF.RHD[[10]]
-      vacc_yld_ARF.RHD <- impModels_ARF.RHD[[11]]
 
-  }
+    }
 
 
     i <- i+projYears
@@ -220,7 +204,7 @@ for(s in 1:numScenarios )
       results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "DALYs",
                                                          introYear:(introYear+projYears-1),
                                                          (introYear-vAge):(introYear-vAge+projYears-1),
-                                                         t(noVacc_dalys_ARF.RHD))
+                                                         t(RHD_outcomes[[1]]))
     }
 
     i <- i+projYears
@@ -241,26 +225,24 @@ for(s in 1:numScenarios )
                                                 (introYear-vAge):(introYear-vAge+projYears-1),
                                                 t(noVacc_deaths)-t(vacc_deaths))
 
+     i <- i+projYears
+
+     }
+
+
      if(condition=="Acute Rheumatic Fever")
      {
        results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "Deaths",
                                                           introYear:(introYear+projYears-1),
                                                           (introYear-vAge):(introYear-vAge+projYears-1),
-                                                          t(noVacc_deaths_ARF.RHD))
+                                                          t(RHD_outcomes[[3]]))
+
+     i <- i+projYears
 
      }
 
-     i <- i+projYears
-    }
 
-    if(condition=="Acute Rheumatic Fever")
-    {
-      results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "Deaths",
-                                                            introYear:(introYear+projYears-1),
-                                                            (introYear-vAge):(introYear-vAge+projYears-1),
-                                                            t(noVacc_deaths_ARF.RHD))
-      i <- i+projYears
-    }
+
 
     #yll
     results_preVaxx[i:(i+projYears-1), ] <- cbind(country, countryCode, condition, "YLL",
@@ -281,7 +263,7 @@ for(s in 1:numScenarios )
       results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "YLL",
                                                          introYear:(introYear+projYears-1),
                                                          (introYear-vAge):(introYear-vAge+projYears-1),
-                                                         t(noVacc_yll_ARF.RHD))
+                                                         t(RHD_outcomes[[5]]))
     }
 
     i <- i+projYears
@@ -305,7 +287,7 @@ for(s in 1:numScenarios )
       results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "YLD",
                                                          introYear:(introYear+projYears-1),
                                                          (introYear-vAge):(introYear-vAge+projYears-1),
-                                                         t(noVacc_yld_ARF.RHD))
+                                                         t(RHD_outcomes[[7]]))
 
     }
 
@@ -326,7 +308,7 @@ for(s in 1:numScenarios )
       results_averted_ARF.RHD[i:(i+projYears-1), ] <- cbind(country, countryCode, "Rheumatic Heart Disease", "pop",
                                                          introYear:(introYear+projYears-1),
                                                          (introYear-vAge):(introYear-vAge+projYears-1),
-                                                         t(noVacc_pop_ARF.RHD)) #same pop values
+                                                         t(noVacc_pop)) #same pop values
     }
 
     i <- i+projYears
