@@ -153,14 +153,14 @@ for(s in 1:numScenarios )
     if(condition=="Acute Rheumatic Fever")
     {
       #Cases
-      ageEndVaxEff <- vAge+durability
+      ageEndVaxEff <- vAge+ifelse(waning == FALSE || durability <2, durability, 2*(durability-1))
       for(a1 in i:(i+projYears-1))
       {
 
         results_averted_ARF.RHD[a1,] <- c(country, countryCode, "Rheumatic Heart Disease", "Cases",
                                           introYear+(a1-i),
                                           (introYear-vAge)+(a1-i),
-                                          rep(0,ageEndVaxEff),
+                                          rep(0,ageEndVaxEff-vAge),
                                           (t(noVacc_counts)-t(vacc_counts))[a1-i+1,(ageEndVaxEff-8):ageEndVaxEff]%*%t(as.matrix(ARFprog[,-1])),
                                           rep(0,(maxAge+1)-(ageEndVaxEff+9)))
 
