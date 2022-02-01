@@ -76,31 +76,31 @@ inc_pharyngitis <- dplyr::tribble(
   "95 plus",  0
 )
 
-#CHECK
 inc_invasive <- dplyr::tribble(
   ~age,      ~val,
-  "<1 year",   exp(-9),
-  "1 to 4",    exp(-9),
-  "5 to 9",    exp(-10.7),
-  "10 to 14",  exp(-11.8),
-  "15 to 19",  exp(-11.7),
-  "20 to 24",  exp(-10.7),
-  "25 to 29",  0,
-  "30 to 34",  0,
-  "35 to 39",  0,
-  "40 to 44",  0,
-  "45 to 49",  0,
-  "50 to 54",  0,
-  "55 to 59",  0,
-  "60 to 64",  0,
-  "65 to 69",  0,
-  "70 to 74",  0,
-  "75 to 79",  0,
-  "80 to 84",  0,
-  "85 to 89",  0,
-  "90 to 94",  0,
-  "95 plus",  0
+  "<1 year",  0.000246,
+  "1 to 4",   0.0000826,
+  "5 to 9",   0.0000187,
+  "10 to 14", 0.0000113,
+  "15 to 19", 0.0000146,
+  "20 to 24", 0.0000216,
+  "25 to 29", 0.0000287,
+  "30 to 34", 0.0000347,
+  "35 to 39", 0.0000394,
+  "40 to 44", 0.0000433,
+  "45 to 49", 0.0000472,
+  "50 to 54", 0.0000525,
+  "55 to 59", 0.0000599,
+  "60 to 64", 0.0000697,
+  "65 to 69", 0.0000826,
+  "70 to 74", 0.0000991,
+  "75 to 79", 0.0001201,
+  "80 to 84", 0.0001462,
+  "85 to 89", 0.0001784,
+  "90 to 94", 0.0002178,
+  "95 plus",  0.0002657
 )
+
 #Prevalence estimates for impetigo
 prev_impetigo <- dplyr::tribble(
   ~age,      ~val,
@@ -133,7 +133,6 @@ inc_impetigo <- dplyr::tibble(prev_impetigo$age,
                       prev_impetigo$val/(duration$Days[duration$Condition == "Impetigo"]/365.25))
 colnames(inc_impetigo) <- c("age", "val")
 
-#Need to CHECK
 probDeath_RHD <- dplyr::tribble(
 ~TimeSinceRHD,	~CpDeath.HIC,  ~CpDeath.LMIC, 	~pDeath.HIC,  ~pDeath.LMIC,
     0,         	0.001399175,       	0.11,       	0.001399175,  	0.11,

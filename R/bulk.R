@@ -5,17 +5,20 @@
 # library(GASImpactModel)
 # library(xlsx)
 # library(stringr)
+# library(countrycode)
 #
 # inputDir <- "C:\\Users\\FGiannini\\OneDrive\\TKI 2021\\GASImpactModel\\GASImpactModel\\R"
-# outputDir <- "C:\\Users\\FGiannini\\OneDrive\\TKI 2021\\IVI output\\"
+# outputDir <- "C:\\Users\\FGiannini\\OneDrive\\TKI 2021\\IVI output\\2022\\"
 # logFile <- paste(outputDir, "logFile", Sys.Date(), ".txt", sep = '')
 # write(paste("Log start time: ", Sys.time()), logFile)
 #
 # #FIXED VALUES FOR ALL SCENARIOS
+# countryCodeList <- data.coveragebycountry$iso3
+# numCountries <- length(countryCodeList)
 # impType <- "Year of vaccination"
 # maxAge <- 99
 #
-# inputFile <- xlsx::read.xlsx(paste(inputDir, "bulk_input_impetigo.xlsx", sep = '\\'), sheetName = "Scenarios")
+# inputFile <- xlsx::read.xlsx(paste(inputDir, "bulk_input_invasive.xlsx", sep = '\\'), sheetName = "Scenarios")
 #
 # numScenarios <- max(inputFile$Scenario)
 #
@@ -33,9 +36,9 @@
 #   introYear <- inputFile$IntroYear[s]
 #   projYears <- inputFile$ProjYears[s]
 #
-#   results_preVaxx <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
-#   results_Vaxx <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
-#   results_averted <- matrix(NA, nrow = length(data.region$Country)*projYears*6, ncol = (maxAge+1-vAge)+6)
+#   results_preVaxx <- matrix(NA, nrow = numCountries*projYears*6, ncol = (maxAge+1-vAge)+6)
+#   results_Vaxx <- matrix(NA, nrow = numCountries*projYears*6, ncol = (maxAge+1-vAge)+6)
+#   results_averted <- matrix(NA, nrow = numCountries*projYears*6, ncol = (maxAge+1-vAge)+6)
 #
 #   covShift <- ifelse(coverage == "Shift", TRUE, FALSE)
 #   yearShift <- ifelse(introYear == "Shift", TRUE, FALSE)
@@ -57,14 +60,14 @@
 #   print(paste("Scenario: ", s))
 #   write(paste("Scenario: ", s, "\n"), logFile, append = TRUE)
 #
-#   for(country in data.region$Country)
+#   for(countryCode in countryCodeList)
 #   {
 #
 #     #If Shift scenario used, get required values
 #     if(covShift)
 #     {
-#       coverage <- data.coveragebycountry[which(data.coveragebycountry$Country == country),]$Hib3.Coverage
-#       if(is.na(coverage) || length(coverage) == 0) coverage <- data.coveragebycountry[which(data.coveragebycountry$Country == country),]$DTP3.Coverage
+#       coverage <- data.coveragebycountry[which(data.coveragebycountry$iso3 == countryCode),]$Hib3.Coverage
+#       if(is.na(coverage) || length(coverage) == 0) coverage <- data.coveragebycountry[which(data.coveragebycountry$iso3 == countryCode),]$DTP3.Coverage
 #       if(is.na(coverage) || length(coverage) == 0) {
 #         print(paste("No country", country, "in Shift Health table"))
 #         next
@@ -76,7 +79,7 @@
 #
 #     if(yearShift)
 #     {
-#       introYear <- data.coveragebycountry[which(data.coveragebycountry$Country == country),]$Timing.of.Introduction
+#       introYear <- data.coveragebycountry[which(data.coveragebycountry$iso3 == countryCode),]$Timing.of.Introduction
 #       if(is.na(introYear) || length(introYear) == 0) {
 #         print(paste("No country", country, "in Shift Health table"))
 #         next
@@ -84,7 +87,7 @@
 #     }
 #     introYear <- as.numeric(introYear)
 #
-#     countryCode <-data.region[data.region$Country == country,]$Code
+#     country <- countrycode(countryCode, "iso3c", "country.name")
 #
 #     print(paste(j, ": Country: ", country, "Condition: ", condition,
 #                 "Prop. attr: ",  pAttr, "Years: ", introYear, "-", introYear+projYears-1,

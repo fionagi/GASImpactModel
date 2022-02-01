@@ -8,11 +8,13 @@
 #' @export
 getCountries <- function(region)
 {
+  allCountries <- data.region[data.region$Code %in% unique(data.rhd2019$iso3),]$Country
+
   if(region == "All")
   {
-    countries <- intersect(data.region$Country, unique(data.rhd2019$location))
+    countries <- allCountries
   } else{
-    countries <- intersect(data.region$Country[which(data.region$Region == region)], unique(data.rhd2019$location))
+    countries <- intersect(data.region$Country[which(data.region$Region == region)], allCountries)
   }
   return(countries)
 }
@@ -35,11 +37,15 @@ getConditionData <- function(location, condition, metric = NA, prop = 1)
   if(condition == "Cellulitis" || condition == "Rheumatic Heart Disease")
   {
     condData <- paste("data.", label, "2019", sep='')
+    code <- countrycode::countrycode(location, "country.name", "iso3c")
 
     data <- get(condData)
-    inc <- data[data$location==location & data$measure=="Incidence" & data$metric==metric,]
-    deaths <- data[data$location==location & data$measure=="Deaths" & data$metric==metric,]
-    dalys <- data[data$location==location & data$measure=="DALYs (Disability-Adjusted Life Years)" & data$metric==metric,]
+    inc <- data[data$iso3 == code & data$measure == "Incidence" & data$metric == metric,]
+    inc <- inc[complete.cases(inc),]
+    deaths <- data[data$iso3 == code & data$measure == "Deaths" & data$metric == metric,]
+    deaths <- deaths[complete.cases(deaths),]
+    dalys <- data[data$iso3 == code & data$measure == "DALYs (Disability-Adjusted Life Years)" & data$metric == metric,]
+    dalys <- dalys[complete.cases(dalys),]
 
     inc <- missingData(inc)
     deaths <- missingData(deaths)
@@ -102,6 +108,7 @@ missingData <- function(dataF)
 getInitPop <- function(location, yearV, pYears, ageV, birth = TRUE)
 {
   pop <- matrix(NA, nrow = pYears+1, ncol = 2)
+  code <- countrycode::countrycode(location, "country.name", "un")
 
   if(birth)
   { #find birth population
@@ -121,13 +128,13 @@ getInitPop <- function(location, yearV, pYears, ageV, birth = TRUE)
 
     if(year < 2020)
     {
-      select <- data.popbyage.1950_to_2020$Country == location &
+      select <- data.popbyage.1950_to_2020$`Country code` == code &
         data.popbyage.1950_to_2020$Year == year
       pop[i,2] <- as.numeric(data.popbyage.1950_to_2020[select, as.character(age)])*1000 #pop in thousands
 
     }else{
 
-      select <- data.popbyage.pred$Country == location &
+      select <- data.popbyage.pred$`Country code` == code &
         data.popbyage.pred$Year == year
       pop[i,2] <- as.numeric(data.popbyage.pred[select, as.character(ageV)])*1000 #pop in thousands
 
@@ -156,6 +163,8 @@ getPopData <- function(location, yearV, pYears, maxAge)
   colnames(pop) <- yearV:(yearV+pYears)
   rownames(pop) <- 0:maxAge
 
+  code <- countrycode::countrycode(location, "country.name", "un")
+
   age <- as.character(0:maxAge)
 
   year <- as.numeric(yearV)
@@ -164,13 +173,13 @@ getPopData <- function(location, yearV, pYears, maxAge)
 
     if(year < 2020)
     {
-      select <- data.popbyage.1950_to_2020$Country == location &
+      select <- data.popbyage.1950_to_2020$`Country code` == code &
         data.popbyage.1950_to_2020$Year == year
       pop[,i] <- as.numeric(data.popbyage.1950_to_2020[select, age])*1000 #pop in thousands
 
     }else{
 
-      select <- data.popbyage.pred$Country == location &
+      select <- data.popbyage.pred$`Country code` == code &
         data.popbyage.pred$Year == year
       pop[,i] <- as.numeric(data.popbyage.pred[select, age])*1000 #pop in thousands
 
@@ -200,6 +209,8 @@ getPopData <- function(location, yearV, pYears, maxAge)
 #' @export
 getMorData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 {
+  code <- countrycode::countrycode(location, "country.name", "un")
+
   tIndex <- rep(1, age_groups$Years[1])
   interval <- rep(age_groups$Years[1], age_groups$Years[1])
   for(i in 2:nrow(age_groups))
@@ -225,7 +236,7 @@ getMorData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 
       index <- trunc(((year-1950)/5)+1)
       period <- unique(data.mortality.1950_to_2020$Period)[index]
-      select <- data.mortality.1950_to_2020$Location == location &
+      select <- data.mortality.1950_to_2020$`Country code` == code &
         data.mortality.1950_to_2020$Period == period
       tmpMor[i,] <- as.numeric(data.mortality.1950_to_2020[select, "Probability of dying q(x,n)"])[tIndex]
       tmpMor[i,] <- 1 - exp(log(1-tmpMor[i,])/interval) #change to single year probability
@@ -237,7 +248,7 @@ getMorData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 
         index <- trunc(((year-2020)/5)+1)
         period <- unique(data.mortality.pred2050$Period)[index]
-        select <- data.mortality.pred2050$Location == location &
+        select <- data.mortality.pred2050$`Country code` == code &
           data.mortality.pred2050$Period == period
         tmpMor[i,] <- as.numeric(data.mortality.pred2050[select, "Probability of dying q(x,n)"])[tIndex]
         tmpMor[i,] <- 1 - exp(log(1-tmpMor[i,])/interval) #change to single year probability
@@ -246,7 +257,7 @@ getMorData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 
         index <- trunc(((year-2050)/5)+1)
         period <- unique(data.mortality.pred2100$Period)[index]
-        select <- data.mortality.pred2100$Location == location &
+        select <- data.mortality.pred2100$`Country code` == code &
           data.mortality.pred2100$Period == period
         tmpMor[i,] <- as.numeric(data.mortality.pred2100[select, "Probability of dying q(x,n)"])[tIndex]
         tmpMor[i,] <- 1 - exp(log(1-tmpMor[i,])/interval) #change to single year probability
@@ -287,6 +298,8 @@ getMorData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 #' @export
 getLifeExData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
 {
+  code <- countrycode::countrycode(location, "country.name", "un")
+
   tIndex <- rep(1, age_groups$Years[1])
   interval <- rep(age_groups$Years[1], age_groups$Years[1])
   for(i in 2:nrow(age_groups))
@@ -313,17 +326,17 @@ getLifeExData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impTyp
 
       index <- trunc(((year-1950)/5)+1)
       period <- unique(data.lifeEx.1950_to_2020$Period)[index]
-      select <- data.lifeEx.1950_to_2020$Location == location &
+      select <- data.lifeEx.1950_to_2020$`Country code` == code &
         data.lifeEx.1950_to_2020$Period == period
-      tmplifeEx[i,] <- as.numeric(data.lifeEx.1950_to_2020[select, -(1:2)])[tIndex]
+      tmplifeEx[i,] <- as.numeric(data.lifeEx.1950_to_2020[select, -(1:3)])[tIndex]
 
     } else {
 
       index <- trunc(((year-2020)/5)+1)
       period <- unique(data.lifeEx.pred2100$Period)[index]
-      select <- data.lifeEx.pred2100$Location == location &
+      select <- data.lifeEx.pred2100$`Country code` == code &
         data.lifeEx.pred2100$Period == period
-      tmplifeEx[i,] <- as.numeric(data.lifeEx.pred2100[select, -(1:2)])[tIndex]
+      tmplifeEx[i,] <- as.numeric(data.lifeEx.pred2100[select, -(1:3)])[tIndex]
 
     }
 
@@ -487,12 +500,14 @@ propVModel <- function(preVacc, waning, durability, efficacy, vaccAge = 0,
 findDalys <- function(condition, noVacc_counts, vacc_counts, daly_weights,
                       location, yearV, pYears, vaccAge = 0, maxAge = 99, impType)
 {
+  code <- countrycode::countrycode(location, "country.name", "iso3c")
+
   if(condition == "Rheumatic Heart Disease")
   { #Calculate DALYs
 
     lifeEx <- getLifeExData(location = location, yearV = yearV, pYears = pYears,
                             ageV = vaccAge, impType = impType)[,(vaccAge+1):(maxAge+1)]
-    isHIC <- ifelse(data.region[data.region$Country == location, "IncomeGroup"] == "High income", 1, 0)
+    isHIC <- ifelse(data.region[data.region$Code == code, "IncomeGroup"] == "High income", 1, 0)
     return_RHD <- dalysRHD(noVacc_counts, vacc_counts, lifeEx, isHIC)
     return(return_RHD)
 
@@ -777,6 +792,85 @@ dalysRHD <- function(noVacc_counts, vacc_counts, lifeEx, HIC_flag)
               noVacc_yll, vacc_yll, noVacc_yld, vacc_yld))
 }
 
+#' Restructure output to get in calendar year format including cohorts
+#' born from 2020
+#'
+#' @param model2020 list of model results for cohorts from 2020
+#' @param modelVaccYear list of model results for cohorts from
+#'                       year of vaccine introduction
+#'
+#' @return list
+#' @export
+findCalendarYear <- function(modelResults2020, modelResultsFromVaccYear)
+{
+  noVacc_counts <- modelResults2020[[1]]
+  vacc_counts <- modelResultsFromVaccYear[[2]]
+
+  counts <- formatCalendarY(modelResults2020[[1]], modelResultsFromVaccYear[[2]])
+
+  dalys <- formatCalendarY(modelResults2020[[3]], modelResultsFromVaccYear[[4]])
+
+  deaths <- formatCalendarY(modelResults2020[[5]], modelResultsFromVaccYear[[6]])
+
+  pop <- formatCalendarY(modelResults2020[[7]], modelResultsFromVaccYear[[7]])
+
+  yll <- formatCalendarY(modelResults2020[[8]], modelResultsFromVaccYear[[9]])
+
+  yld <- formatCalendarY(modelResults2020[[10]], modelResultsFromVaccYear[[11]])
+
+
+  return(list(counts[[1]], counts[[2]], dalys[[1]], dalys[[2]],
+              deaths[[1]], deaths[[2]], pop[[1]],
+              yll[[1]], yll[[2]], yld[[1]], yld[[2]]))
+
+}
+
+#' Restructure output to get in calendar year format.
+#'
+#' @param no_vacc_data matrix results (counts, DALYs, deaths, pop, yll or yld)
+#'                     for 2020 no vaccination scenario
+#' @param vacc_data matrix results matrix (counts, DALYs, deaths, pop, yll or yld)
+#'                  for vaccination scenario from year of vaccination
+#'
+#' @return list(matrix, matrix)
+#' @export
+formatCalendarY <- function(noVacc_data, vacc_data)
+{
+ new_noVacc <- matrix(NA, nrow = nrow(vacc_data), ncol = ncol(vacc_data))
+ new_vacc <- matrix(NA, nrow = nrow(vacc_data), ncol = ncol(vacc_data))
+ rownames(new_noVacc) <- rownames(vacc_data)
+ colnames(new_noVacc) <- colnames(vacc_data)
+ rownames(new_vacc) <- rownames(vacc_data)
+ colnames(new_vacc) <- colnames(vacc_data)
+
+ old_vacc <- vacc_data[, ncol(vacc_data):1]
+ old_noVacc <- noVacc_data[, ncol(noVacc_data):1]
+ for(i in 1:ncol(vacc_data))
+ {
+  yearDataVacc <- diag(old_vacc)
+  yearDataNoVacc <- diag(old_noVacc)
+
+  if(length(yearDataNoVacc) != length(yearDataVacc))
+  { # year of vaccination intro > 2020
+    yearDataVacc <- c(yearDataVacc, yearDataNoVacc[(length(yearDataVacc)+1):length(yearDataNoVacc)])
+  }
+
+  new_vacc[1:length(yearDataVacc),(ncol(new_vacc)-i+1)] <- yearDataVacc
+  new_noVacc[1:length(yearDataNoVacc),(ncol(new_noVacc)-i+1)] <- yearDataNoVacc
+
+  if(i != ncol(vacc_data))
+  {
+    old_vacc <- as.matrix(old_vacc[,-1])
+    old_noVacc <- as.matrix(old_noVacc[,-1])
+  }
+ }
+
+ return(list(new_noVacc, new_vacc))
+
+}
+
+
+
 #PRESENTATION OF RESULTS FUNCTIONS
 
 #' Present results in age groups.
@@ -836,6 +930,9 @@ makePlot <- function(noVacc_data, vacc_data, ylabel, vAge, maxAge = 99, vYear,
   colnames(noVacc_data) <- yearStart:(yearStart+pYears)
   rownames(vacc_data) <- vAge:maxAge
   colnames(vacc_data) <- yearStart:(yearStart+pYears)
+
+  noVacc_data[which(is.na(noVacc_data))] <- 0
+  vacc_data[which(is.na(vacc_data))] <- 0
 
   totalNoVacc <- apply(noVacc_data, 2, sum) #pre-vaxx total no. incidents, deaths or dalys
 

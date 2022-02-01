@@ -3,21 +3,24 @@
 \docType{data}
 \name{data.region}
 \alias{data.region}
-\title{Countries by United Nations regions}
+\title{Countries by United Nations regions
+World Development Indicators and Other World Bank Data updated April 2021
+From R package WDI}
 \format{
-A data table containing 230 observations of 2 variables.
+A data table containing 304 observations of 4 variables.
 \describe{
+\item{Code}{iso3 country code}
 \item{Country}{Country or area name}
 \item{Region}{UN region name}
+\item{IncomeGroup}
 }
-}
-\source{
-\url{https://population.un.org/wpp/Download/Files/4_Metadata/WPP2019_F01_LOCATIONS.}
 }
 \usage{
 data.region
 }
 \description{
 Countries by United Nations regions
+World Development Indicators and Other World Bank Data updated April 2021
+From R package WDI
 }
 \keyword{datasets}
