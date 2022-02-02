@@ -178,6 +178,7 @@ getPopData <- function(location, yearV, pYears, maxAge)
 
       select <- data.popbyage.pred$`Country code` == code &
         data.popbyage.pred$Year == year
+      data.popbyage.pred[select, age][which(data.popbyage.pred[select, age] == "...")] <- 0
       pop[,i] <- as.numeric(data.popbyage.pred[select, age])*1000 #pop in thousands
 
     }
@@ -256,6 +257,7 @@ getMorData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impType)
         period <- unique(data.mortality.pred2100$Period)[index]
         select <- data.mortality.pred2100$`Country code` == code &
           data.mortality.pred2100$Period == period
+        data.mortality.pred2100[select, "Probability of dying q(x,n)"][which(data.mortality.pred2100[select, "Probability of dying q(x,n)"] == "...")] <- 0
         tmpMor[i,] <- as.numeric(data.mortality.pred2100[select, "Probability of dying q(x,n)"])[tIndex]
         tmpMor[i,] <- 1 - exp(log(1-tmpMor[i,])/interval) #change to single year probability
 
