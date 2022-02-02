@@ -51,12 +51,9 @@ getConditionData <- function(location, condition, metric = NA, prop = 1)
     deaths <- missingData(deaths)
     dalys <- missingData(dalys)
 
-    if(prop != 1)
-    {
-      inc[, c("val", "lower", "upper")] <- prop *inc[, c("val", "lower", "upper")]
-      deaths[, c("val", "lower", "upper")] <- prop *deaths[, c("val", "lower", "upper")]
-      dalys[, c("val", "lower", "upper")] <- prop *dalys[, c("val", "lower", "upper")]
-    }
+    inc[, c("val", "lower", "upper")] <- prop *inc[, c("val", "lower", "upper")]
+    deaths[, c("val", "lower", "upper")] <- prop *deaths[, c("val", "lower", "upper")]
+    dalys[, c("val", "lower", "upper")] <- prop *dalys[, c("val", "lower", "upper")]
 
     return(list(inc, deaths, dalys))
   }
