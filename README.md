@@ -12,7 +12,7 @@ life years (DALYs) due to each GAS disease. The reduction in disease burden is i
 direct proportion to vaccine efficacy, vaccine coverage, and vaccine-derived immunity 
 (based on duration of protection and waning dynamics). Through the web application, 
 impact metrics for a selected vaccination scenario can be visualised for any of 205 
-countries. The app shows the predicted lifetime health benefits, from age of vaccination,
+countries abd regions. The app shows the predicted lifetime health benefits, from age of vaccination,
 associated with the vaccination of multiple cohorts during the period selected. 
 Direct effects of vaccination are included, and indirect (herd) effects are excluded; 
 therefore, the estimated health benefits of GAS vaccination are conservative 
