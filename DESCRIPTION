@@ -26,3 +26,7 @@ Imports:
     stats,
     stringr,
     triangle
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr

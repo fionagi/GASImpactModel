@@ -5,7 +5,7 @@
 \alias{data.coveragebycountry}
 \title{Country-specific year of vaccine introduction and maximum coverage}
 \format{
-A data table containing 218 observations of 6 variables
+A data table containing 183 observations of 6 variables
 \describe{
 \item{Country}{Country}
 \item{Region}{Region}

@@ -5,7 +5,6 @@
 #' @param region UN region
 #'
 #' @return vector
-#' @export
 getCountries <- function(region)
 {
   allCountries <- data.region[data.region$Code %in% unique(data.rhd2019$iso3),]$Country
@@ -70,7 +69,6 @@ getConditionData <- function(location, condition, metric = NA, prop = 1)
 #' @param dataF data frame from getRateData
 #'
 #' @return data.frame
-#' @export
 missingData <- function(dataF)
 {
   if(nrow(dataF) != nrow(age_groups))
@@ -92,7 +90,7 @@ missingData <- function(dataF)
 
 }
 
-#' Find population at birth for cohorts to be modeled
+#' Find population at age of vaccination or at birth for cohorts to be modeled
 #'
 #' @param location country that matches UN data
 #' @param yearV year of vaccine introduction
@@ -366,7 +364,6 @@ getLifeExData <- function(location, yearV, pYears, ageV = 0, maxAge = 99, impTyp
 #' @param probMort all-cause mortality for cohort at age
 #'
 #' @return matrix
-#' @export
 transProb <- function(probD, probMort)
 {
   trProb <- cbind(probD, probMort)
@@ -514,7 +511,12 @@ findDalys <- function(condition, noVacc_counts, vacc_counts, daly_weights,
 
     if(condition == "Invasive infection")
     {
-      probDeath <- probDeath_invasive[probDeath_invasive$TimeSince == 0,]$pDeath
+      tIndex <- rep(1, age_groups$Years[1])
+      for(i in 2:nrow(age_groups)) tIndex <- c(tIndex, rep(i, age_groups$Years[i]))
+      tIndex <- tIndex[1:(maxAge+1)]
+
+      probDeath <- probDeath_invasive$pDeath[tIndex]
+      probDeath <- probDeath[(vaccAge+1):(maxAge+1)]
       noVacc_deaths <- probDeath*noVacc_counts
       vacc_deaths <- probDeath*vacc_counts
 
@@ -694,7 +696,6 @@ runModel<- function(location, condition, inc, rate = 100000, mortality,
 #' @param HIC_flag if country is a High Income Country value is 1, else 0
 #'
 #' @return list(matrix, matrix)
-#' @export
 dalysRHD <- function(noVacc_counts, vacc_counts, lifeEx, HIC_flag)
 {
   years <- colnames(noVacc_counts)
@@ -799,7 +800,6 @@ dalysRHD <- function(noVacc_counts, vacc_counts, lifeEx, HIC_flag)
 #'                       year of vaccine introduction
 #'
 #' @return list
-#' @export
 findCalendarYear <- function(modelResults2020, modelResultsFromVaccYear)
 {
   noVacc_counts <- modelResults2020[[1]]
@@ -832,7 +832,6 @@ findCalendarYear <- function(modelResults2020, modelResultsFromVaccYear)
 #'                  for vaccination scenario from year of vaccination
 #'
 #' @return list(matrix, matrix)
-#' @export
 formatCalendarY <- function(noVacc_data, vacc_data)
 {
  new_noVacc <- matrix(NA, nrow = nrow(vacc_data), ncol = ncol(vacc_data))

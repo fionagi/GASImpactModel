@@ -5,9 +5,10 @@
 \alias{data.popbyage.1950_to_2020}
 \title{Population by age - 1950 - 2020}
 \format{
-A data table containing 17821 observations of 103 variables.
+A data table containing 17821 observations of 104 variables.
 \describe{
 \item{Country}{Region, subregion, country or area}
+\item{Country code}{iso3 country code}
 \item{0, 1, ..., 100}{population in 1-year age groups}
 }
 }

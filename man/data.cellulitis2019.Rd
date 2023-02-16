@@ -5,8 +5,9 @@
 \alias{data.cellulitis2019}
 \title{Incidence, death rates and DALYs for cellulitis}
 \format{
-A data table containing 55350 observations of 7 variables.
+A data table containing 38745 observations of 8 variables.
 \describe{
+\item{iso3}{iso3 country code}
 \item{measure}{Either Incidence, Deaths or DALYs}
 \item{location}{Region, subregion, country or area}
 \item{age}{age groups, <1, 1 to 4, then 5-year age groups up to 95 plus}
@@ -24,7 +25,7 @@ data.cellulitis2019
 }
 \description{
 Incidence, death rates and DALYs (per 100,000 persons) for 2019 by country/region
-and age group for 205 locations.Data set extracted from the Global Health
+and age group for 205 locations. Data set extracted from the Global Health
 Data Exchange (GHDx), created and supported by the Institute for Health
 Metrics and Evaluation (IHME)
 }

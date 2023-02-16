@@ -5,9 +5,10 @@
 \alias{data.lifeEx.pred2100}
 \title{Life expectancy - 2020 - 2100}
 \format{
-A data table containing 3514 observations of 24 variables
+A data table containing 4016 observations of 25 variables
 \describe{
 \item{Location}{Region, subregion, country or area}
+\item{Country code}{United Nations M49 numeric codes}
 \item{Period}{Year range}
 \item{0, 1, 5, ..., 95, 100+}{life expactancy at age}
 }

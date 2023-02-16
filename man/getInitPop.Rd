@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{getInitPop}
 \alias{getInitPop}
-\title{Find population at birth for cohorts to be modeled}
+\title{Find population at age of vaccination or at birth for cohorts to be modeled}
 \usage{
 getInitPop(location, yearV, pYears, ageV, birth = TRUE)
 }
@@ -21,5 +21,5 @@ getInitPop(location, yearV, pYears, ageV, birth = TRUE)
 data.frame
 }
 \description{
-Find population at birth for cohorts to be modeled
+Find population at age of vaccination or at birth for cohorts to be modeled
 }

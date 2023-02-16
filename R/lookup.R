@@ -147,11 +147,31 @@ probDeath_RHD <- dplyr::tribble(
     9,	        0.0295888,	        0.3,	        0.00423987,   	0.0163
 )
 
-#4% of invasive incidents result in death in the first year
+#prob (based on age) of invasive incidents result in
+#death in the first year
 probDeath_invasive <- dplyr::tribble(
-  ~TimeSince,	~pDeath,
-    0,         	0.04
+~Age, 	~pDeath,
+"<1 year",	0.06,
+"1 to 4", 	0.06,
+"5 to 9", 	0.07,
+"10 to 14", 0.08,
+"15 to 19",	0.08,
+"20 to 24",	0.09,
+"25 to 29",	0.11,
+"30 to 34",	0.12,
+"35 to 39",	0.13,
+"40 to 44",	0.15,
+"45 to 49",	0.17,
+"50 to 54",	0.19,
+"55 to 59",	0.21,
+"60 to 64",	0.24,
+"65 to 69",	0.27,
+"70 to 74",	0.30,
+"75 to 79",	0.34,
+"80 to 84",	0.38,
+"85 to 89",	0.43,
+"90 to 94",	0.48,
+"95 to 99",	0.54
 )
-
 
 

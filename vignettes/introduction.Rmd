@@ -1,0 +1,247 @@
+---
+title: "GASImpactModel"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GASImpactModel}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GASImpactModel)
+```
+
+
+## Introduction
+A static cohort model was developed to estimate the projected health impact of 
+group A Streptococcus (GAS) vaccination using country-specific demographic data. 
+The model is available as an R package GASImpactModel 
+(https://github.com/fionagi/GASImpactModel) and a user-friendly (R Shiny) web application (https://github.com/fionagi/GASImpactModel_App). Vaccination impact is estimated 
+in terms of reduction in the burden of several major GAS disease states and sequelae. 
+Burden estimation comprised of episodes of acute GAS disease (pharyngitis, impetigo, 
+invasive disease, and cellulitis) and cases of rheumatic heart disease (RHD), 
+deaths due to severe GAS disease (invasive disease and RHD), and disability-adjusted 
+life years (DALYs) due to each GAS disease. The reduction in disease burden is in 
+direct proportion to vaccine efficacy, vaccine coverage, and vaccine-derived immunity 
+(based on duration of protection and waning dynamics). Through the web application, 
+impact metrics for a selected vaccination scenario can be visualised for any of 205 
+countries and regions. The app shows the predicted lifetime health benefits, from age of vaccination,
+associated with the vaccination of multiple cohorts during the period selected. 
+Direct effects of vaccination are included, and indirect (herd) effects are excluded; 
+therefore, the estimated health benefits of GAS vaccination are conservative 
+(if GAS vaccination prevents population transmission).
+
+
+### Functions
+The main GASImpactModel function is:
+
+  * runModel
+
+Other functions include:
+
+  * getConditionData
+  * getInitPop
+  * getPopData
+  * getMorData
+  * getLifeExData
+  * immunity
+  * preVaxxModel
+  * propVModel
+  * findDalys
+  
+  * makeBarPlot
+  * makePlot
+  * makePlotAvert
+  
+R code for the functions are in the R-folder of the package, i.e. ./R/
+
+Documentation of a function can be viewed, by running ?functionname in the console, i.e. ?getConditionData
+```{r eval=FALSE}
+# View documentation of getConditionData function
+?getConditionData
+
+```
+
+The source code of a function can be viewed by running the functionname without any brackets in the console.
+```{r eval=FALSE}
+# View source code of getConditionData function
+getConditionData
+
+```
+
+
+### Data
+Several data sets are included in the package. The data files (.rda files) are stored
+in the data folder of the package, i.e. ./data/
+
+  * data.region
+  * data.cellulitis2019
+  * data.rhd2019
+  * data.popbyage.1950_to_2020
+  * data.popbyage.pred
+  * data.mortality.1950_to_2020
+  * data.mortality.pred2050
+  * data.mortality.pred2100
+  * data.lifeEx.1950_to_2020
+  * data.lifeEx.pred2100
+  * data.coveragebycountry
+
+Documentation of a data set can be viewed, by running ?dataset-name in the console, i.e. ?data.cellulitis2019
+```{r eval=FALSE}
+# View documentation of ?data.cellulitis2019 data set
+?data.cellulitis2019
+
+```
+
+A data set can be viewed by typing the data file name in the console.
+```{r eval=FALSE}
+# View entire data set of incidence, death rates and DALYs for all countries for cellulitis
+data.cellulitis2019
+
+```
+
+
+### Examples
+The "get" functions (e.g. getConditionData, getInitPop, getMorData, etc.) can
+be used to retrieve country specific data from the data sets. For example, getConditionData 
+can be used to retrieve cellulitis incidence data for Australia 
+
+```{r}
+getConditionData(location = "Australia", condition = "Cellulitis", metric = "Rate")[[1]]
+
+```
+
+If the condition is not cellulitis or RHD, the incidence rates
+will not be country-specific. Only for cellulitis and RHD does the
+metric need to be defined, and a list (rather than just a data frame) containing 
+incidence (first list item), deaths (second list item) and DALYs (third list item) 
+will be returned as this is the full data provided by the Institute for Health 
+Metrics and Evaluation (IHME) and stored as a data set in the R package. 
+
+Another example; use the getInitPop function to find the population at vaccination
+age assuming a vaccine is introduced in Australia in 2022, considering 10 cohorts
+from year of vaccination with a vaccination age of 5.
+
+```{r}
+getInitPop(location = "Australia", yearV = 2022, pYears = 10, ageV = 5, birth = FALSE)
+```
+
+Note: If you want to find the birth population for these same cohorts, then "birth = TRUE". 
+
+To model the impact of vaccination on a particular population, for a GAS disease, 
+the R Shiny app is a user-friendly way of defining a vaccination scenario and
+visualising the model results. The GASImpactModel_App uses the R package 
+GASImpactModel. 
+
+To access the app for modelling: 
+
+1.	Make sure you have the “shiny” package installed and loaded: 
+```{r eval=FALSE}
+install.packages("shiny")
+library(shiny)
+```
+
+2.	Then run app code directly from the GitHub repository in your R console by 
+using the following command:
+```{r eval=FALSE}
+runGitHub("GASImpactModel_App", "fionagi")
+```
+
+
+To run the model using only the R package, we first need to retrieve the
+incidence, all-cause mortality and population data for the scenario of interest.
+
+In this example, we are modelling invasive infection, in Australia, with 2022
+the year of vaccination, age of vaccination 0 (maximum age of cohort is 99), for
+10 years after year of vaccination (so 11 years in total). The parameter "impType",
+refers to how the metrics are estimated - either by year of birth, year of vaccination
+or calendar year. In this example, the results will be presented considering the
+impact of a particular year’s vaccination activity, "Year of vaccination".
+```{r}
+#get incidence rates
+incR <- getConditionData(location = "Australia", condition = "Invasive infection")
+#get all-cause mortality rates for each cohort
+mProb <- getMorData(location = "Australia", yearV = 2022, pYears = 10,
+                        ageV = 0, maxAge = 99, impType = "Year of vaccination")
+#get population at year of vaccination for each cohort
+initPop <- getInitPop(location = "Australia", yearV = 2022, pYears = 10, 
+                        ageV = 0, birth = FALSE)
+    
+```
+
+
+Once we have the incidence data, we can plot the number of cases per 100 persons, by age group.
+This data is the constant (over projected years), pre-vaccination assumed incidence rate.
+```{r fig1, fig.height = 5, fig.width = 11}
+#plot incidence data as number of cases per 100 persons
+incR_per100 <- incR
+incR_per100[,"val"] <- 100*incR_per100[,"val"]
+makeBarPlot(incR_per100, ylabel = "Number of cases per 100 persons", colFill = "steelblue")
+```
+Now that we have the required data, we can model the impact of a particular vaccination scenario.
+In this example we consider a vaccine efficacy of 70%, vaccine coverage of 50%,
+a durability of 10 years with no waning of immunity and no linear "ramp" up to
+maximum vaccine coverage.
+
+Note: rate here corresponds to the incidence data. For RHD and cellultitis the values
+are per 100,000 persons. For all other conditions, it is per person hence rate = 1.
+
+The function runModel takes the input data and vaccination parameter values and returns a list where
+each item in the list is a data frame. The list gives us the pre-vaccination and vaccination
+incident counts, DALYS and deaths (if relevant), as well
+as the modelled population.
+
+```{r}
+#vaccine efficacy as %
+efficacy <- 70
+#vaccine coverage as %
+coverage <- 50
+#overall vaccine effect, incorporating vaccine efficacy and coverage
+overallEff <- (efficacy*coverage)/100
+
+#run model
+impModels <- runModel(location = "Australia", condition = "Invasive infection", 
+                        inc = incR, rate = 1, mortality = mProb, yearV = 2022,
+                           vaccAge = 0, maxAge = 99, vaccEff = overallEff,
+                           vaccDur = 10, waning = FALSE, ramp = FALSE,
+                           impType = "Year of vaccination", pYears = 10,
+                           initPop = initPop)
+
+#save list results returned from "runModel"
+noVacc_counts <- impModels[[1]]
+vacc_counts <- impModels[[2]]
+noVacc_dalys <- impModels[[3]]
+vacc_dalys <- impModels[[4]]
+noVacc_deaths <- impModels[[5]]
+vacc_deaths <- impModels[[6]]
+pop <- impModels[[7]]
+
+```
+
+The results in terms of incidents, DALYs and deaths averted can then be plotted.
+```{r fig2, fig.height = 9, fig.width = 6}
+#plot averted results
+p_countsA <- makePlotAvert(noVacc_counts, vacc_counts, ylabel = "Number of cases",
+                         vAge = 0, vYear = 2022, impType = "Year of vaccination",
+                         pYears = 10)
+
+p_dalysA <- makePlotAvert(noVacc_dalys, vacc_dalys, ylabel = "DALYs",
+                          vAge = 0, vYear = 2022, impType = "Year of vaccination",
+                          pYears = 10)
+
+p_deathsA <- makePlotAvert(noVacc_deaths, vacc_deaths, ylabel = "Deaths",
+                           vAge = 0, vYear = 2022, impType = "Year of vaccination",
+                           pYears = 10)
+ggpubr::ggarrange(p_countsA, p_dalysA, p_deathsA, ncol = 1, nrow = 3)
+
+```
+
+

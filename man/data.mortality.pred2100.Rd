@@ -5,9 +5,10 @@
 \alias{data.mortality.pred2100}
 \title{Probability of mortality - 2050 - 2100}
 \format{
-A data table containing 31626 observations of 5 variables.
+A data table containing 55220 observations of 6 variables.
 \describe{
 \item{Location}{Region, subregion, country or area}
+\item{Country code}{United Nations M49 numeric codes}
 \item{Period}{Year range}
 \item{Age (x)}{Start of age range}
 \item{Age interval (n)}{age interval length}

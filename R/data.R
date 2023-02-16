@@ -20,9 +20,10 @@
 #' Data set extracted from United Nations data "Annual Population by Age - Both Sexes"
 #' obtained from source.
 #'
-#' @format A data table containing 17821 observations of 103 variables.
+#' @format A data table containing 17821 observations of 104 variables.
 #' \describe{
 #'   \item{Country}{Region, subregion, country or area}
+#'   \item{Country code}{iso3 country code}
 #'   \item{0, 1, ..., 100}{population in 1-year age groups}
 #' }
 #' @source \url{https://population.un.org/wpp/Download/Standard/Interpolated/}
@@ -35,9 +36,10 @@
 #' Data set extracted from United Nations data "Annual Population by Age - Both Sexes"
 #' obtained from source.
 #'
-#' @format A data table containing 20331 observations of 103 variables.
+#' @format A data table containing 20331 observations of 104 variables.
 #' \describe{
 #'   \item{Country}{Region, subregion, country or area}
+#'   \item{Country code}{iso3 country code}
 #'   \item{Year}{2020 - 2100}
 #'   \item{0, 1, ..., 100}{population in 1-year age groups}
 #' }
@@ -47,12 +49,13 @@
 #' Incidence, death rates and DALYs for rheumatic heart disease (RHD)
 #'
 #' Incidence, death rates and DALYs (per 100,000 persons) for 2019 by country/region
-#'  and age group for 205 locations.Data set extracted from the Global Health
+#'  and age group for 205 locations. Data set extracted from the Global Health
 #'  Data Exchange (GHDx), created and supported by the Institute for Health
 #'  Metrics and Evaluation (IHME)
 #'
-#' @format A data table containing 54120 observations of 7 variables.
+#' @format A data table containing 38130 observations of 8 variables.
 #' \describe{
+#'   \item{iso3}{iso3 country code}
 #'   \item{measure}{Either Incidence, Deaths or DALYs}
 #'   \item{location}{Region, subregion, country or area}
 #'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups up to 95 plus}
@@ -67,12 +70,13 @@
 #' Incidence, death rates and DALYs for cellulitis
 #'
 #' Incidence, death rates and DALYs (per 100,000 persons) for 2019 by country/region
-#'  and age group for 205 locations.Data set extracted from the Global Health
+#'  and age group for 205 locations. Data set extracted from the Global Health
 #'  Data Exchange (GHDx), created and supported by the Institute for Health
 #'  Metrics and Evaluation (IHME)
 #'
-#' @format A data table containing 55350 observations of 7 variables.
+#' @format A data table containing 38745 observations of 8 variables.
 #' \describe{
+#'   \item{iso3}{iso3 country code}
 #'   \item{measure}{Either Incidence, Deaths or DALYs}
 #'   \item{location}{Region, subregion, country or area}
 #'   \item{age}{age groups, <1, 1 to 4, then 5-year age groups up to 95 plus}
@@ -90,9 +94,10 @@
 #' Data set extracted from United Nations data "Abridged Life Table - Both Sexes"
 #' obtained from source.
 #'
-#' @format A data table containing 73794 observations of 5 variables.
+#' @format A data table containing 73794 observations of 6 variables.
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
+#'   \item{Country code}{United Nations M49 numeric codes}
 #'   \item{Period}{Year range}
 #'   \item{Age (x)}{Start of age range}
 #'   \item{Age interval (n)}{age interval length}
@@ -107,9 +112,10 @@
 #' Data set extracted from United Nations data "Abridged Life Table - Both Sexes"
 #' obtained from source.
 #'
-#' @format A data table containing 31626 observations of 5 variables.
+#' @format A data table containing 31626 observations of 6 variables.
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
+#'   \item{Country code}{United Nations M49 numeric codes}
 #'   \item{Period}{Year range}
 #'   \item{Age (x)}{Start of age range}
 #'   \item{Age interval (n)}{age interval length}
@@ -124,9 +130,10 @@
 #' Data set extracted from United Nations data "Abridged Life Table - Both Sexes"
 #' obtained from source.
 #'
-#' @format A data table containing 31626 observations of 5 variables.
+#' @format A data table containing 55220 observations of 6 variables.
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
+#'   \item{Country code}{United Nations M49 numeric codes}
 #'   \item{Period}{Year range}
 #'   \item{Age (x)}{Start of age range}
 #'   \item{Age interval (n)}{age interval length}
@@ -141,9 +148,10 @@
 #' Data set extracted from United Nations data "Life Expectancy at exact age x (ex) - Both Sexes"
 #' obtained from source,
 #'
-#' @format A data table containing 3514 observations of 24 variables
+#' @format A data table containing 3514 observations of 25 variables
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
+#'   \item{Country code}{United Nations M49 numeric codes}
 #'   \item{Period}{Year range}
 #'   \item{0, 1, 5, ..., 95, 100+}{life expactancy at age}
 #' }
@@ -156,9 +164,10 @@
 #' Data set extracted from United Nations data "Life Expectancy at exact age x (ex) - Both Sexes"
 #' obtained from source,
 #'
-#' @format A data table containing 3514 observations of 24 variables
+#' @format A data table containing 4016 observations of 25 variables
 #' \describe{
 #'   \item{Location}{Region, subregion, country or area}
+#'   \item{Country code}{United Nations M49 numeric codes}
 #'   \item{Period}{Year range}
 #'   \item{0, 1, 5, ..., 95, 100+}{life expactancy at age}
 #' }
@@ -171,7 +180,7 @@
 #' Shift health prediction of likely year of vaccine introduction for
 #' each country and predicted maximum coverage proportion
 #'
-#' @format A data table containing 218 observations of 6 variables
+#' @format A data table containing 183 observations of 6 variables
 #' \describe{
 #'   \item{Country}{Country}
 #'   \item{Region}{Region}
